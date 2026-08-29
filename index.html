@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gatitos en Fuga: Crónicas Callejeras</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #121212; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+        .container { width: 100%; max-width: 800px; padding: 20px; text-align: center; }
+        .screen { display: none; background: #1e1e1e; border-radius: 12px; padding: 30px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
+        .active { display: block; }
+        h1 { color: #f39c12; margin-bottom: 15px; font-size: 2.2rem; }
+        p { margin-bottom: 20px; color: #ccc; line-height: 1.6; }
+        .btn { background: #e67e22; color: white; border: none; padding: 12px 25px; font-size: 1rem; border-radius: 8px; cursor: pointer; transition: 0.3s; margin: 10px; font-weight: bold; }
+        .btn:hover { background: #d35400; transform: scale(1.05); }
+        .character-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 20px; }
+        .card { background: #2c2c2c; border-radius: 8px; padding: 20px; border: 2px solid transparent; transition: 0.3s; cursor: pointer; }
+        .card:hover { border-color: #f39c12; transform: translateY(-5px); }
+        .card h3 { color: #f1c40f; margin-bottom: 10px; }
+        #game-canvas { background: #000; width: 100%; height: 400px; border-radius: 8px; margin-top: 15px; display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="screen-intro" class="screen active">
+            <h1>🐾 Gatitos en Fuga 🐾</h1>
+            <p><strong>Cinemática inicial:</strong> Un camión de pescado se vuelca en el callejón central. El susto, un perro guardián furioso y una alcantarilla rota separan a los tres hermanos en rumbos distintos de la ciudad. ¡Cada uno debe sobrevivir a su propia pesadilla urbana para volver a encontrarse!</p>
+            <button class="btn" onclick="showScreen('screen-select')">Iniciar Aventura</button>
+        </div>
+
+        <div id="screen-select" class="screen">
+            <h1>Elige tu Ruta</h1>
+            <p>Selecciona un gatito para vivir su campaña paralela:</p>
+            <div class="character-grid">
+                <div class="card" onclick="startCampaign('Agil', 'Tejados y Azoteas')">
+                    <h3>Gatito 1: El Ágil</h3>
+                    <p>Zona: Tejados. Salta obstáculos, esquiva palomas hostiles y atrapa ratones en las alturas.</p>
+                </div>
+                <div class="card" onclick="startCampaign('Fuerte', 'Mercado Central')">
+                    <h3>Gatito 2: El Fuerte</h3>
+                    <p>Zona: Mercado. Esquiva escobas y abre paso esquivando perros callejeros.</p>
+                </div>
+                <div class="card" onclick="startCampaign('Sigiloso', 'Cloacas Subterráneas')">
+                    <h3>Gatito 3: El Sigiloso</h3>
+                    <p>Zona: Cloacas. Un laberinto oscuro lleno de trampas y ratas gigantes.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-game" class="screen">
+            <h2 id="campaign-title">Campaña</h2>
+            <p id="campaign-desc">Superando obstáculos...</p>
+            <canvas id="game-canvas"></canvas>
+            <br>
+            <button class="btn" onclick="showScreen('screen-select')">Volver al Menú</button>
+        </div>
+    </div>
+
+    <script>
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            
+            if(screenId === 'screen-game') {
+                initGameCanvas();
+            }
+        }
+
+        function startCampaign(character, zone) {
+            document.getElementById('campaign-title').innerText = `Campaña: Gatito ${character}`;
+            document.getElementById('campaign-desc').innerText = `Ubicación: ${zone}. ¡Sobrevive al recorrido!`;
+            showScreen('screen-game');
+        }
+
+        function initGameCanvas() {
+            const canvas = document.getElementById('game-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth - 60;
+            canvas.height = 400;
+
+            // Bucle simple de animación para probar rendimiento en Vercel
+            let x = 50;
+            function draw() {
+                ctx.fillStyle = '#111';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Dibujar un "gatito" provisional de prueba
+                ctx.fillStyle = '#f39c12';
+                ctx.fillRect(x, 250, 40, 30);
+                
+                x += 2;
+                if (x > canvas.width) x = -40;
+                
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+    </script>
+</body>
+</html>
