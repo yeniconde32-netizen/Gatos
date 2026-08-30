@@ -6,9 +6,9 @@
     <title>Gatitos en Fuga: Capítulo 1 - La Huida del Callejón</title>
     <style>
         body {
-            background-color: #0d1117; /* Fondo oscuro tipo cine */
+            background-color: #0d1117;
             color: #ffffff;
-            font-family: 'Georgia', serif; /* Fuente clásica para narrativa */
+            font-family: 'Georgia', serif;
             text-align: center;
             margin: 0;
             padding: 0;
@@ -28,17 +28,17 @@
             width: 100%;
             max-width: 420px;
             height: 100vh;
-            padding-top: 60px; /* Espacio para anuncio superior */
-            padding-bottom: 70px; /* Espacio para menú inferior */
+            padding-top: 60px;
+            padding-bottom: 70px;
         }
 
         #game-container {
             position: relative;
             width: 95%;
-            height: 72vh; /* Juego ocupa gran parte de la pantalla */
+            height: 72vh;
             max-height: 420px;
-            background: linear-gradient(to bottom, #0f172a, #1e293b); /* Cielo nocturno */
-            border: 3px solid #ea580c; /* Borde color fuego */
+            background: linear-gradient(to bottom, #0f172a, #1e293b);
+            border: 3px solid #ea580c;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.9);
@@ -48,7 +48,7 @@
             display: block;
             width: 100%;
             height: 100%;
-            image-rendering: pixelated; /* Mantener estética cuadrito nítida */
+            image-rendering: pixelated;
         }
 
         .hud {
@@ -60,7 +60,7 @@
             justify-content: space-between;
             font-size: 20px;
             font-weight: bold;
-            color: #fde68a; /* Amarillo dorado */
+            color: #fde68a;
             text-shadow: 2px 2px #000;
             z-index: 10;
             pointer-events: none;
@@ -105,34 +105,37 @@
         }
         .btn:active { background-color: #c2410c; transform: translateY(2px); }
 
-        /* Pantalla de Narrativa / Cinemática */
-        #narrative-overlay {
+        /* Pantalla Cinemática / Diálogo */
+        #cinematic-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92);
-            display: none; /* Oculto por defecto */
+            background: rgba(5, 5, 10, 0.94);
+            display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 30;
-            padding: 30px;
+            padding: 25px;
             box-sizing: border-box;
         }
-        #narrative-title {
-            color: #ef4444; /* Rojo peligro */
-            font-size: 24px;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-        #narrative-text {
-            color: #e5e7eb;
-            font-size: 18px;
-            line-height: 1.5;
-            margin-bottom: 25px;
+        #cinematic-box {
+            border: 2px solid #ea580c;
+            padding: 20px;
+            background: rgba(234, 88, 12, 0.08);
+            border-radius: 8px;
             max-width: 350px;
         }
-        #narrative-btn {
-            width: 70%;
+        #cinematic-title {
+            color: #f87171;
+            font-size: 20px;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        #cinematic-text {
+            color: #e5e7eb;
+            font-size: 15px;
+            line-height: 1.4;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -148,10 +151,12 @@
             </div>
             <canvas id="gameCanvas" width="400" height="300"></canvas>
 
-            <div id="narrative-overlay">
-                <p id="narrative-title">¡CAPÍTULO 1 COMPLETADO!</p>
-                <p id="narrative-text">Has dejado el camión de pescado atrás. El perro guardián ya no te persigue. Estás a salvo en el tejado. ¿Es ese... el maullido de tu hermano?</p>
-                <button id="narrative-btn" class="btn" onclick="backToMenu()">Continuar al Capítulo 2</button>
+            <div id="cinematic-overlay">
+                <div id="cinematic-box">
+                    <h3 id="cinematic-title">ENCUENTRO</h3>
+                    <p id="cinematic-text">Mensaje cinemático...</p>
+                    <button class="btn" id="cinematic-btn" onclick="handleCinematicAction()">Continuar</button>
+                </div>
             </div>
         </div>
         <div class="ad-banner">Anuncio Recompensas / Banner Inferior</div>
@@ -164,23 +169,22 @@
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const narrativeOverlay = document.getElementById('narrative-overlay');
-        const narrativeTitle = document.getElementById('narrative-title');
-        const narrativeText = document.getElementById('narrative-text');
-        const narrativeBtn = document.getElementById('narrative-btn');
+        const cinematicOverlay = document.getElementById('cinematic-overlay');
+        const cinematicTitle = document.getElementById('cinematic-title');
+        const cinematicText = document.getElementById('cinematic-text');
+        const cinematicBtn = document.getElementById('cinematic-btn');
 
         let stopGame = false;
         let pausedForCinematic = false;
+        let isChapterEnd = false;
         let score = 0;
         let gameSpeed = 3.5;
         let frameCount = 0;
-        let chapterComplete = false;
 
         const CW = canvas.width;
         const CH = canvas.height;
         const GROUND_Y = CH - 60;
 
-        // El Gato 1 (El Ágil - Bloque Naranja)
         let cat = {
             x: 50,
             y: GROUND_Y,
@@ -189,15 +193,12 @@
             dy: 0,
             jumpForce: -11,
             gravity: 0.6,
-            isGrounded: true,
-            legAnim: 0
+            isGrounded: true
         };
 
         let enemies = [];
         let items = [];
-        let particles = [];
 
-        // Audio Sintetizado Cinemático
         let audioCtx = null;
         function playTone(freq1, freq2, duration, type) {
             try {
@@ -219,58 +220,50 @@
         function initGame() {
             stopGame = false;
             pausedForCinematic = false;
-            chapterComplete = false;
+            isChapterEnd = false;
             score = 0;
             gameSpeed = 3.5;
             frameCount = 0;
             enemies = [];
             items = [];
-            particles = [];
-            narrativeOverlay.style.display = 'none';
+            cinematicOverlay.style.display = 'none';
             cat.y = GROUND_Y;
             cat.isGrounded = true;
             loop();
         }
 
-        // Controles
         window.addEventListener('keydown', e => { if(e.code === 'Space') makeJump(); });
         canvas.addEventListener('touchstart', e => { e.preventDefault(); makeJump(); });
 
         function makeJump() {
-            if (stopGame || pausedForCinematic || chapterComplete) return;
+            if (stopGame || pausedForCinematic) return;
             if (cat.isGrounded) {
                 cat.dy = cat.jumpForce;
                 cat.isGrounded = false;
-                playTone(150, 400, 0.15, 'square'); // Sonido de salto felino
-                // Estela de movimiento
-                particles.push({x: cat.x, y: cat.y, alpha: 1, color: '#fdba74'});
+                playTone(150, 400, 0.15, 'square');
             }
         }
 
-        // ENEMIGOS DRAMÁTICOS (CAP 1)
         const enemyEncounters = [
-            { name: "Cuervo Hostil", color: "#111827", heightBonus: -32, msg: "¡Un cuervo gigante te bloquea el paso!" },
-            { name: "Rata de Cloaca", color: "#166534", heightBonus: 0, msg: "¡Una rata mutante te corta el paso!" },
-            { name: "Perro Guardián (Lejos)", color: "#991b1b", heightBonus: 0, msg: "El perro guardián aún te sigue la pista..." }
+            { name: "Cuervo Hostil", color: "#111827", heightBonus: -32, dialogue: "El cuervo despliega sus alas negras y te mira fijamente... (Silencio tenso)" },
+            { name: "Rata de Cloaca", color: "#166534", heightBonus: 0, dialogue: "La rata mutante muestra sus colmillos y emite un chillido seco que te detiene..." }
         ];
 
         function update() {
-            if (stopGame || pausedForCinematic || chapterComplete) return;
+            if (stopGame || pausedForCinematic) return;
             frameCount++;
             score += Math.floor(gameSpeed / 3);
 
-            // Aceleración gradual
             if (frameCount % 400 === 0) gameSpeed += 0.3;
 
-            // CONDICIÓN DE FIN DEL CAPÍTULO 1 (Al llegar a 2000 puntos)
-            if (score >= 2000) {
-                triggerChapterEnd();
+            // META DEL CAPÍTULO 1: 1500 PUNTOS
+            if (score >= 1500) {
+                triggerChapterComplete();
                 return;
             }
 
             document.getElementById('score-txt').innerText = `Puntos: ${score}`;
 
-            // Física del gato
             cat.dy += cat.gravity;
             cat.y += cat.dy;
             if (cat.y >= GROUND_Y) {
@@ -279,10 +272,9 @@
                 cat.isGrounded = true;
             }
 
-            // Generador de Enemigos (Dramáticos)
-            let spawnRate = score < 500 ? 100 : (score < 1500 ? 80 : 60);
+            let spawnRate = score < 600 ? 100 : 75;
             if (frameCount % spawnRate === 0) {
-                let typeIdx = score < 500 ? 0 : (Math.random() > 0.5 ? 1 : 0); // Aparecen ratas luego de 500pts
+                let typeIdx = score < 600 ? 0 : (Math.random() > 0.4 ? 1 : 0);
                 let enemyData = enemyEncounters[typeIdx];
                 enemies.push({
                     x: CW,
@@ -293,17 +285,14 @@
                 });
             }
 
-            // Generador de Comida (Ítem)
             if (frameCount % 130 === 0) {
                 items.push({ x: CW, y: GROUND_Y + 5, width: 22, height: 14 });
             }
 
-            // Mover enemigos
             for (let i = enemies.length - 1; i >= 0; i--) {
                 let e = enemies[i];
                 e.x -= gameSpeed;
 
-                // Colisión Gato-Enemigo (Encuentro Cinemático)
                 if (
                     cat.x < e.x + e.width &&
                     cat.x + cat.width > e.x &&
@@ -317,7 +306,6 @@
                 if (e.x + e.width < 0) enemies.splice(i, 1);
             }
 
-            // Mover ítems
             for (let i = items.length - 1; i >= 0; i--) {
                 let itm = items[i];
                 itm.x -= gameSpeed;
@@ -328,34 +316,107 @@
                     cat.y + cat.height > itm.y
                 ) {
                     score += 80;
-                    playTone(600, 1100, 0.05, 'sine'); // Sonido de éxito
+                    playTone(600, 1100, 0.05, 'sine');
                     items.splice(i, 1);
                 } else if (itm.x + itm.width < 0) items.splice(i, 1);
             }
-
-            // Actualizar partículas
-            for(let p of particles) p.alpha -= 0.02;
-            particles = particles.filter(p => p.alpha > 0);
         }
 
-        // FUNCIÓN DE ENCUENTRO CINEMÁTICO (Pausa Dramática)
         function triggerCinematicEncounter(enemy) {
             pausedForCinematic = true;
             stopGame = true;
-
-            // Sonido grave de suspenso
             playTone(100, 30, 0.8, 'sawtooth');
 
-            // Colocar al enemigo en primer plano sobre el gato para la toma
-            enemy.x = cat.x - 10;
-            enemy.y = cat.y - 5;
-            draw(); // Redibujar con el enemigo sobre el gato
+            isChapterEnd = false;
+            cinematicTitle.innerText = "ENCUENTRO CERCANO";
+            cinematicText.innerText = enemy.data.dialogue;
+            cinematicBtn.innerText = "Reintentar Huida";
+            cinematicOverlay.style.display = 'flex';
+        }
 
-            // Mostrar cuadro de diálogo
-            // Usaremos un alert() simple por ahora para garantizar que detiene el juego en el móvil,
-            // pero lo ideal es el overlay que preparamos. Usemos el overlay.
-            // Modifiquemos el overlay para usarlo aquí.
-            
-            // REEMPLAZO DE DIÁLOGO:
-            // Asumiendo que el usuario quiere algo tipo "película de terror indie"
-            // Vamos a usar
+        function triggerChapterComplete() {
+            stopGame = true;
+            pausedForCinematic = true;
+            isChapterEnd = true;
+            playTone(300, 900, 0.5, 'triangle');
+
+            cinematicTitle.innerText = "¡CAPÍTULO 1 SUPERADO!";
+            cinematicText.innerText = "Has atravesado los tejados oscuros esquivando los peligros. El sonido de la ciudad cambia a lo lejos... Te acercas al mercado central.";
+            cinematicBtn.innerText = "Ir al Menú Principal";
+            cinematicOverlay.style.display = 'flex';
+        }
+
+        function handleCinematicAction() {
+            if (isChapterEnd) {
+                window.location.href = '/';
+            } else {
+                initGame();
+            }
+        }
+
+        function draw() {
+            // Fondo urbano nocturno
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, CW, CH);
+
+            // Siluetas de edificios de fondo
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(30, 70, 50, CH - 130);
+            ctx.fillRect(110, 40, 65, CH - 100);
+            ctx.fillRect(200, 85, 45, CH - 145);
+            ctx.fillRect(280, 50, 70, CH - 110);
+
+            // Suelo del Tejado
+            ctx.fillStyle = '#7f1d1d';
+            ctx.fillRect(0, GROUND_Y + cat.height, CW, CH - GROUND_Y);
+
+            // Dibujar Gato Detallado (Bloque Naranja con orejas y cola)
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(cat.x, cat.y + 4, cat.width - 6, cat.height - 4);
+            // Cabeza
+            ctx.fillRect(cat.x + cat.width - 16, cat.y - 4, 16, 14);
+            // Orejas
+            ctx.fillStyle = '#d97706';
+            ctx.fillRect(cat.x + cat.width - 14, cat.y - 8, 4, 5);
+            ctx.fillRect(cat.x + cat.width - 6, cat.y - 8, 4, 5);
+            // Cola
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(cat.x, cat.y + 12);
+            ctx.quadraticCurveTo(cat.x - 10, cat.y - 4, cat.x - 6, cat.y - 10);
+            ctx.stroke();
+
+            // Dibujar Enemigos (Bloques agresivos)
+            for (let e of enemies) {
+                ctx.fillStyle = e.data.color;
+                ctx.fillRect(e.x, e.y, e.width, e.height);
+                // Ojos amenazantes del enemigo
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(e.x + 6, e.y + 6, 4, 4);
+            }
+
+            // Dibujar Pescados (Ítems)
+            for (let itm of items) {
+                ctx.fillStyle = '#38bdf8'; // Azul brillante
+                ctx.fillRect(itm.x, itm.y + 4, 14, 8);
+                // Cola del pescado
+                ctx.beginPath();
+                ctx.moveTo(itm.x + 14, itm.y + 4);
+                ctx.lineTo(itm.x + 20, itm.y);
+                ctx.lineTo(itm.x + 20, itm.y + 12);
+                ctx.fill();
+            }
+        }
+
+        function loop() {
+            if (stopGame) return;
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        initGame();
+    </script>
+</body>
+</html>
