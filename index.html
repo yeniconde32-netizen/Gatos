@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gatitos en Fuga: Capítulo 1 - La Huida del Callejón</title>
+    <title>Gatitos en Fuga: Capítulo 1 - Edición Urbana</title>
     <style>
         body {
-            background-color: #0d1117;
+            background-color: #090d16;
             color: #ffffff;
-            font-family: 'Georgia', serif;
+            font-family: 'Courier New', Courier, monospace;
             text-align: center;
             margin: 0;
             padding: 0;
@@ -37,11 +37,12 @@
             width: 95%;
             height: 72vh;
             max-height: 420px;
-            background: linear-gradient(to bottom, #0f172a, #1e293b);
-            border: 3px solid #ea580c;
+            /* Fondo estilo muro de concreto callejero nocturno */
+            background: #111827;
+            border: 3px solid #38bdf8; /* Neón Azul */
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
         }
 
         canvas {
@@ -60,8 +61,8 @@
             justify-content: space-between;
             font-size: 20px;
             font-weight: bold;
-            color: #fde68a;
-            text-shadow: 2px 2px #000;
+            color: #38bdf8;
+            text-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
             z-index: 10;
             pointer-events: none;
         }
@@ -70,12 +71,12 @@
             width: 100%;
             max-width: 400px;
             height: 50px;
-            background-color: #161e2e;
-            border: 1px dashed #ea580c;
+            background-color: #111827;
+            border: 1px dashed #38bdf8;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #a3a3a3;
+            color: #38bdf8;
             font-size: 11px;
             margin: 6px 0;
             border-radius: 6px;
@@ -92,8 +93,8 @@
         }
 
         .btn {
-            background-color: #ea580c;
-            color: #111827;
+            background-color: #0284c7;
+            color: #fff;
             border: none;
             padding: 14px;
             font-size: 16px;
@@ -101,15 +102,15 @@
             border-radius: 8px;
             cursor: pointer;
             width: 100%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.5);
         }
-        .btn:active { background-color: #c2410c; transform: translateY(2px); }
+        .btn:active { background-color: #0369a1; transform: translateY(2px); }
 
-        /* Pantalla Cinemática / Diálogo */
+        /* Pantalla Cinemática / Diálogo Estilo Spray */
         #cinematic-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5, 5, 10, 0.94);
+            background: rgba(5, 5, 10, 0.95);
             display: none;
             flex-direction: column;
             align-items: center;
@@ -119,14 +120,15 @@
             box-sizing: border-box;
         }
         #cinematic-box {
-            border: 2px solid #ea580c;
+            border: 2px solid #38bdf8;
             padding: 20px;
-            background: rgba(234, 88, 12, 0.08);
+            background: rgba(2, 132, 199, 0.1);
             border-radius: 8px;
             max-width: 350px;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
         }
         #cinematic-title {
-            color: #f87171;
+            color: #38bdf8;
             font-size: 20px;
             margin-top: 0;
             margin-bottom: 10px;
@@ -147,14 +149,15 @@
         <div id="game-container">
             <div class="hud">
                 <span id="score-txt">Puntos: 0</span>
-                <span id="chapter-txt">Cap 1: Huida</span>
+                <span id="chapter-txt">Zona Urbana: 1</span>
             </div>
             <canvas id="gameCanvas" width="400" height="300"></canvas>
 
+            <!-- PANTALLA CINEMÁTICA -->
             <div id="cinematic-overlay">
                 <div id="cinematic-box">
-                    <h3 id="cinematic-title">ENCUENTRO</h3>
-                    <p id="cinematic-text">Mensaje cinemático...</p>
+                    <h3 id="cinematic-title">ALERTA CALLEJERA</h3>
+                    <p id="cinematic-text">Mensaje...</p>
                     <button class="btn" id="cinematic-btn" onclick="handleCinematicAction()">Continuar</button>
                 </div>
             </div>
@@ -178,7 +181,7 @@
         let pausedForCinematic = false;
         let isChapterEnd = false;
         let score = 0;
-        let gameSpeed = 3.5;
+        let gameSpeed = 3.8;
         let frameCount = 0;
 
         const CW = canvas.width;
@@ -191,7 +194,7 @@
             width: 38,
             height: 30,
             dy: 0,
-            jumpForce: -11,
+            jumpForce: -11.5,
             gravity: 0.6,
             isGrounded: true
         };
@@ -222,7 +225,7 @@
             pausedForCinematic = false;
             isChapterEnd = false;
             score = 0;
-            gameSpeed = 3.5;
+            gameSpeed = 3.8;
             frameCount = 0;
             enemies = [];
             items = [];
@@ -240,13 +243,13 @@
             if (cat.isGrounded) {
                 cat.dy = cat.jumpForce;
                 cat.isGrounded = false;
-                playTone(150, 400, 0.15, 'square');
+                playTone(200, 500, 0.12, 'square');
             }
         }
 
         const enemyEncounters = [
-            { name: "Cuervo Hostil", color: "#111827", heightBonus: -32, dialogue: "El cuervo despliega sus alas negras y te mira fijamente... (Silencio tenso)" },
-            { name: "Rata de Cloaca", color: "#166534", heightBonus: 0, dialogue: "La rata mutante muestra sus colmillos y emite un chillido seco que te detiene..." }
+            { name: "Cuervo Callejero", color: "#1f2937", heightBonus: -32, dialogue: "Un cuervo de losas oscuras despliega sus alas y te bloquea el callejón con una mirada amenazante." },
+            { name: "Rata Subterránea", color: "#065f46", heightBonus: 0, dialogue: "Una rata gigante sale de una alcantarilla abierta y te muestra los colmillos lista para atacar." }
         ];
 
         function update() {
@@ -256,7 +259,6 @@
 
             if (frameCount % 400 === 0) gameSpeed += 0.3;
 
-            // META DEL CAPÍTULO 1: 1500 PUNTOS
             if (score >= 1500) {
                 triggerChapterComplete();
                 return;
@@ -272,7 +274,7 @@
                 cat.isGrounded = true;
             }
 
-            let spawnRate = score < 600 ? 100 : 75;
+            let spawnRate = score < 600 ? 95 : 70;
             if (frameCount % spawnRate === 0) {
                 let typeIdx = score < 600 ? 0 : (Math.random() > 0.4 ? 1 : 0);
                 let enemyData = enemyEncounters[typeIdx];
@@ -315,8 +317,8 @@
                     cat.y < itm.y + itm.height &&
                     cat.y + cat.height > itm.y
                 ) {
-                    score += 80;
-                    playTone(600, 1100, 0.05, 'sine');
+                    score += 90;
+                    playTone(700, 1200, 0.05, 'sine');
                     items.splice(i, 1);
                 } else if (itm.x + itm.width < 0) items.splice(i, 1);
             }
@@ -325,12 +327,12 @@
         function triggerCinematicEncounter(enemy) {
             pausedForCinematic = true;
             stopGame = true;
-            playTone(100, 30, 0.8, 'sawtooth');
+            playTone(120, 40, 0.8, 'sawtooth');
 
             isChapterEnd = false;
-            cinematicTitle.innerText = "ENCUENTRO CERCANO";
+            cinematicTitle.innerText = "¡EMBOSCADA URBANA!";
             cinematicText.innerText = enemy.data.dialogue;
-            cinematicBtn.innerText = "Reintentar Huida";
+            cinematicBtn.innerText = "Volver a Intentar";
             cinematicOverlay.style.display = 'flex';
         }
 
@@ -338,11 +340,11 @@
             stopGame = true;
             pausedForCinematic = true;
             isChapterEnd = true;
-            playTone(300, 900, 0.5, 'triangle');
+            playTone(350, 950, 0.5, 'triangle');
 
-            cinematicTitle.innerText = "¡CAPÍTULO 1 SUPERADO!";
-            cinematicText.innerText = "Has atravesado los tejados oscuros esquivando los peligros. El sonido de la ciudad cambia a lo lejos... Te acercas al mercado central.";
-            cinematicBtn.innerText = "Ir al Menú Principal";
+            cinematicTitle.innerText = "¡ZONA 1 SUPERADA!";
+            cinematicText.innerText = "Has cruzado los callejones oscuros esquivando el peligro. El distrito comercial te espera en el siguiente nivel.";
+            cinematicBtn.innerText = "Volver al Menú";
             cinematicOverlay.style.display = 'flex';
         }
 
@@ -355,52 +357,62 @@
         }
 
         function draw() {
-            // Fondo urbano nocturno
+            // Fondo con textura de ladrillo / concreto urbano nocturno
             ctx.fillStyle = '#0f172a';
             ctx.fillRect(0, 0, CW, CH);
 
-            // Siluetas de edificios de fondo
+            // Patrón de líneas simulando bloques de ladrillo en el fondo
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            for(let i = 0; i < CH; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(CW, i);
+                ctx.stroke();
+            }
+
+            // Grafitis y carteles de neón simulados al fondo
+            ctx.fillStyle = '#38bdf822';
+            ctx.fillRect(50, 60, 80, 50);
+            ctx.fillStyle = '#f43f5e22';
+            ctx.fillRect(240, 90, 70, 40);
+
+            // Suelo Callejero con borde de luz de neón
             ctx.fillStyle = '#1e293b';
-            ctx.fillRect(30, 70, 50, CH - 130);
-            ctx.fillRect(110, 40, 65, CH - 100);
-            ctx.fillRect(200, 85, 45, CH - 145);
-            ctx.fillRect(280, 50, 70, CH - 110);
-
-            // Suelo del Tejado
-            ctx.fillStyle = '#7f1d1d';
             ctx.fillRect(0, GROUND_Y + cat.height, CW, CH - GROUND_Y);
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(0, GROUND_Y + cat.height, CW, 3); // Línea de neón en el suelo
 
-            // Dibujar Gato Detallado (Bloque Naranja con orejas y cola)
-            ctx.fillStyle = '#f59e0b';
+            // GATO ESTILO STENCIL URBANO (Con brillo de neón naranja/spray)
+            ctx.fillStyle = '#f97316'; // Naranja brillante aerosol
             ctx.fillRect(cat.x, cat.y + 4, cat.width - 6, cat.height - 4);
             // Cabeza
             ctx.fillRect(cat.x + cat.width - 16, cat.y - 4, 16, 14);
-            // Orejas
-            ctx.fillStyle = '#d97706';
+            // Orejas con spray
+            ctx.fillStyle = '#ea580c';
             ctx.fillRect(cat.x + cat.width - 14, cat.y - 8, 4, 5);
             ctx.fillRect(cat.x + cat.width - 6, cat.y - 8, 4, 5);
-            // Cola
-            ctx.strokeStyle = '#f59e0b';
+            // Cola en curva de spray
+            ctx.strokeStyle = '#fdba74';
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.moveTo(cat.x, cat.y + 12);
-            ctx.quadraticCurveTo(cat.x - 10, cat.y - 4, cat.x - 6, cat.y - 10);
+            ctx.quadraticCurveTo(cat.x - 12, cat.y - 6, cat.x - 6, cat.y - 12);
             ctx.stroke();
 
-            // Dibujar Enemigos (Bloques agresivos)
+            // ENEMIGOS ESTILO URBANO
             for (let e of enemies) {
                 ctx.fillStyle = e.data.color;
                 ctx.fillRect(e.x, e.y, e.width, e.height);
-                // Ojos amenazantes del enemigo
-                ctx.fillStyle = '#ef4444';
+                // Ojos brillantes del enemigo en la oscuridad
+                ctx.fillStyle = '#38bdf8';
                 ctx.fillRect(e.x + 6, e.y + 6, 4, 4);
             }
 
-            // Dibujar Pescados (Ítems)
+            // PESCADOS (Ítems de neón)
             for (let itm of items) {
-                ctx.fillStyle = '#38bdf8'; // Azul brillante
+                ctx.fillStyle = '#38bdf8';
                 ctx.fillRect(itm.x, itm.y + 4, 14, 8);
-                // Cola del pescado
                 ctx.beginPath();
                 ctx.moveTo(itm.x + 14, itm.y + 4);
                 ctx.lineTo(itm.x + 20, itm.y);
