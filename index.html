@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gatitos en Fuga: Capítulo 1 - Arcade 2D</title>
+    <title>Saga de Gatitos en Fuga: Cap 1 - Callejón</title>
     <style>
         body {
             background-color: #090d16;
             color: #ffffff;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Georgia', serif; /* Fuente clásica para narrativa */
             text-align: center;
             margin: 0;
             padding: 0;
@@ -37,11 +37,11 @@
             width: 95%;
             height: 56vh;
             max-height: 320px;
-            background: #111827;
-            border: 3px solid #38bdf8;
+            background: #111827; /* Fondo callejón */
+            border: 3px solid #ea580c; /* Borde color fuego */
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+            box-shadow: 0 0 20px rgba(234, 88, 12, 0.4);
         }
 
         canvas {
@@ -60,13 +60,13 @@
             justify-content: space-between;
             font-size: 16px;
             font-weight: bold;
-            color: #38bdf8;
-            text-shadow: 0 0 6px rgba(56, 189, 248, 0.8);
+            color: #fde68a;
+            text-shadow: 2px 2px #000;
             z-index: 10;
             pointer-events: none;
         }
 
-        /* Controles Táctiles 2D Estilo Arcade */
+        /* Controles Táctiles 2D */
         .controls-container {
             width: 95%;
             max-width: 400px;
@@ -77,20 +77,20 @@
         }
 
         .ctrl-btn {
-            background-color: #0284c7;
-            color: #fff;
+            background-color: #ea580c;
+            color: #111827;
             border: none;
             padding: 15px 0;
             font-size: 18px;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.4);
+            box-shadow: 0 4px 10px rgba(234, 88, 12, 0.4);
             user-select: none;
             -webkit-user-select: none;
         }
         .ctrl-btn:active {
-            background-color: #0369a1;
+            background-color: #c2410c;
             transform: translateY(2px);
         }
 
@@ -99,11 +99,11 @@
             max-width: 400px;
             height: 45px;
             background-color: #111827;
-            border: 1px dashed #38bdf8;
+            border: 1px dashed #ea580c;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #38bdf8;
+            color: #ea580c;
             font-size: 10px;
             margin: 4px 0;
             border-radius: 6px;
@@ -116,8 +116,8 @@
         }
 
         .btn {
-            background-color: #0284c7;
-            color: #fff;
+            background-color: #ea580c;
+            color: #111827;
             border: none;
             padding: 12px;
             font-size: 14px;
@@ -125,10 +125,10 @@
             border-radius: 8px;
             cursor: pointer;
             width: 100%;
-            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.5);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        /* Pantalla Cinemática */
+        /* Pantalla Cinemática / Narrativa */
         #cinematic-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -142,23 +142,24 @@
             box-sizing: border-box;
         }
         #cinematic-box {
-            border: 2px solid #38bdf8;
+            border: 2px solid #ea580c;
             padding: 15px;
-            background: rgba(2, 132, 199, 0.1);
+            background: rgba(234, 88, 12, 0.1);
             border-radius: 8px;
             max-width: 330px;
         }
         #cinematic-title {
-            color: #38bdf8;
+            color: #ef4444; /* Rojo peligro */
             font-size: 18px;
             margin-top: 0;
             margin-bottom: 8px;
         }
         #cinematic-text {
             color: #e5e7eb;
-            font-size: 13px;
-            line-height: 1.4;
+            font-size: 14px;
+            line-height: 1.5;
             margin-bottom: 15px;
+            font-style: italic;
         }
     </style>
 </head>
@@ -170,21 +171,19 @@
         <div id="game-container">
             <div class="hud">
                 <span id="score-txt">Puntos: 0</span>
-                <span id="zone-txt">Zona: 1</span>
+                <span id="chapter-txt">Cap 1: Callejón</span>
             </div>
             <canvas id="gameCanvas" width="400" height="300"></canvas>
 
-            <!-- PANTALLA CINEMÁTICA -->
             <div id="cinematic-overlay">
                 <div id="cinematic-box">
-                    <h3 id="cinematic-title">ALERTA</h3>
+                    <h3 id="cinematic-title">¡ALERTA!</h3>
                     <p id="cinematic-text">Mensaje...</p>
                     <button class="btn" id="cinematic-btn" onclick="handleCinematicAction()">Continuar</button>
                 </div>
             </div>
         </div>
 
-        <!-- CONTROLES TÁCTICOS 2D (IZQ, DER, SALTO, AGACHAR) -->
         <div class="controls-container">
             <button class="ctrl-btn" id="btn-left">◀</button>
             <button class="ctrl-btn" id="btn-right">▶</button>
@@ -211,25 +210,26 @@
         let pausedForCinematic = false;
         let isChapterEnd = false;
         let score = 0;
-        let worldX = 0; // Desplazamiento del escenario 2D
+        let worldX = 0;
         let gameSpeed = 2.5;
         let frameCount = 0;
 
         const CW = canvas.width;
         const CH = canvas.height;
-        const GROUND_Y = CH - 50;
+        const GROUND_Y = CH - 55; // Suelo un poco más alto
 
         let cat = {
-            x: 80,
+            x: 60, // Gato un poco más a la izquierda
             y: GROUND_Y,
             width: 36,
-            height: 28,
+            height: 30, // Gato un bloque detallado
             vx: 0,
             dy: 0,
             jumpForce: -10,
             gravity: 0.55,
             isGrounded: true,
-            isCrouched: false
+            isCrouched: false,
+            color: '#f97316' // Naranja
         };
 
         let enemies = [];
@@ -238,7 +238,7 @@
         let keys = { left: false, right: false, jump: false, duck: false };
 
         let audioCtx = null;
-        function playTone(freq1, freq2, duration, type) {
+        function playTone(freq1, freq2, duration, type, volume = 0.1) {
             try {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 let osc = audioCtx.createOscillator();
@@ -246,7 +246,7 @@
                 osc.type = type;
                 osc.frequency.setValueAtTime(freq1, audioCtx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(freq2, audioCtx.currentTime + duration);
-                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.setValueAtTime(volume, audioCtx.currentTime);
                 gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
@@ -265,15 +265,16 @@
             enemies = [];
             items = [];
             cinematicOverlay.style.display = 'none';
-            cat.x = 80;
+            cat.x = 60;
             cat.y = GROUND_Y;
             cat.vx = 0;
             cat.dy = 0;
             cat.isGrounded = true;
+            cat.isCrouched = false;
             loop();
         }
 
-        // Gestión de Controles Teclado
+        // Gestión de Controles
         window.addEventListener('keydown', e => {
             if(e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
             if(e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
@@ -287,7 +288,6 @@
             if(e.code === 'ArrowDown' || e.code === 'KeyS') keys.duck = false;
         });
 
-        // Gestión de Controles Táctiles (Botones Pantalla)
         function bindTouch(id, keyName, isAction = false) {
             const el = document.getElementById(id);
             el.addEventListener('touchstart', e => {
@@ -307,217 +307,6 @@
                 if(!isAction) keys[keyName] = false;
             });
         }
-
         bindTouch('btn-left', 'left');
         bindTouch('btn-right', 'right');
-        bindTouch('btn-jump', 'jump', true);
-        bindTouch('btn-duck', 'duck');
-
-        function triggerJump() {
-            if (stopGame || pausedForCinematic) return;
-            if (cat.isGrounded && !cat.isCrouched) {
-                cat.dy = cat.jumpForce;
-                cat.isGrounded = false;
-                playTone(220, 520, 0.12, 'square');
-            }
-        }
-
-        const enemyTypes = [
-            { name: "Cuervo Alto (Agáchate)", color: "#1f2937", heightBonus: -28, type: "high" },
-            { name: "Rata de Suelo (Salta)", color: "#065f46", heightBonus: 0, type: "low" }
-        ];
-
-        function update() {
-            if (stopGame || pausedForCinematic) return;
-            frameCount++;
-            score += 1;
-            worldX += gameSpeed;
-
-            if (frameCount % 350 === 0) gameSpeed += 0.2;
-            if (score >= 1200) {
-                triggerChapterComplete();
-                return;
-            }
-
-            document.getElementById('score-txt').innerText = `Puntos: ${score}`;
-
-            // Movimiento lateral 2D
-            cat.vx = 0;
-            if (keys.left) cat.vx = -3.5;
-            if (keys.right) cat.vx = 3.5;
-
-            cat.x += cat.vx;
-            // Limitar movimiento dentro de la pantalla
-            if (cat.x < 20) cat.x = 20;
-            if (cat.x > CW - 50) cat.x = CW - 50;
-
-            // Manejo de Agacharse
-            cat.isCrouched = keys.duck;
-            cat.height = cat.isCrouched ? 16 : 28;
-
-            // Gravedad y salto
-            cat.dy += cat.gravity;
-            cat.y += cat.dy;
-            
-            let currentGround = GROUND_Y + (cat.isCrouched ? 12 : 0);
-            if (cat.y >= currentGround) {
-                cat.y = currentGround;
-                cat.dy = 0;
-                cat.isGrounded = true;
-            }
-
-            // Generador de obstáculos dinámicos
-            if (frameCount % 90 === 0) {
-                let typeIdx = Math.random() > 0.5 ? 1 : 0;
-                let data = enemyTypes[typeIdx];
-                enemies.push({
-                    x: CW + worldX,
-                    y: GROUND_Y + data.heightBonus,
-                    width: 36,
-                    height: data.type === 'high' ? 14 : 22,
-                    data: data
-                });
-            }
-
-            // Generar Pescados
-            if (frameCount % 120 === 0) {
-                items.push({
-                    x: CW + worldX,
-                    y: GROUND_Y - 10,
-                    width: 20,
-                    height: 12
-                });
-            }
-
-            // Colisiones con Enemigos
-            for (let i = enemies.length - 1; i >= 0; i--) {
-                let e = enemies[i];
-                let screenEX = e.x - worldX;
-
-                if (
-                    cat.x < screenEX + e.width &&
-                    cat.x + cat.width > screenEX &&
-                    cat.y < e.y + e.height &&
-                    cat.y + cat.height > e.y
-                ) {
-                    triggerCinematicEncounter(e);
-                    return;
-                }
-
-                if (screenEX + e.width < -50) enemies.splice(i, 1);
-            }
-
-            // Colisiones con Ítems (Pescados)
-            for (let i = items.length - 1; i >= 0; i--) {
-                let itm = items[i];
-                let screenIX = itm.x - worldX;
-
-                if (
-                    cat.x < screenIX + itm.width &&
-                    cat.x + cat.width > screenIX &&
-                    cat.y < itm.y + itm.height &&
-                    cat.y + cat.height > itm.y
-                ) {
-                    score += 75;
-                    playTone(650, 1150, 0.05, 'sine');
-                    items.splice(i, 1);
-                } else if (screenIX + itm.width < -50) {
-                    items.splice(i, 1);
-                }
-            }
-        }
-
-        function triggerCinematicEncounter(enemy) {
-            pausedForCinematic = true;
-            stopGame = true;
-            playTone(130, 45, 0.8, 'sawtooth');
-
-            isChapterEnd = false;
-            cinematicTitle.innerText = "¡COLISIÓN URBANA!";
-            cinematicText.innerText = enemy.data.type === 'high' ? "¡Chocaste con el cuervo! Debías agacharte (▼) para pasar." : "¡Chocaste con la rata! Debías saltar (▲) para esquivarla.";
-            cinematicBtn.innerText = "Reintentar Zona";
-            cinematicOverlay.style.display = 'flex';
-        }
-
-        function triggerChapterComplete() {
-            stopGame = true;
-            pausedForCinematic = true;
-            isChapterEnd = true;
-            playTone(400, 1000, 0.5, 'triangle');
-
-            cinematicTitle.innerText = "¡ZONA 1 SUPERADA!";
-            cinematicText.innerText = "¡Excelente manejo 2D! Has dominado el salto y el sigilo agachado en los callejones.";
-            cinematicBtn.innerText = "Menú Principal";
-            cinematicOverlay.style.display = 'flex';
-        }
-
-        function handleCinematicAction() {
-            if (isChapterEnd) {
-                window.location.href = '/';
-            } else {
-                initGame();
-            }
-        }
-
-        function draw() {
-            // Fondo urbano nocturno con líneas de ladrillo
-            ctx.fillStyle = '#0f172a';
-            ctx.fillRect(0, 0, CW, CH);
-
-            ctx.strokeStyle = '#1e293b';
-            ctx.lineWidth = 1;
-            for(let i = 0; i < CH; i += 20) {
-                ctx.beginPath();
-                ctx.moveTo(0, i);
-                ctx.lineTo(CW, i);
-                ctx.stroke();
-            }
-
-            // Suelo Callejero con neón
-            ctx.fillStyle = '#1e293b';
-            ctx.fillRect(0, GROUND_Y + 28, CW, CH - GROUND_Y);
-            ctx.fillStyle = '#38bdf8';
-            ctx.fillRect(0, GROUND_Y + 28, CW, 3);
-
-            // Dibujar Gato 2D (Naranja con animación de agacharse)
-            ctx.fillStyle = '#f97316';
-            let renderH = cat.height;
-            let renderY = cat.y;
-            ctx.fillRect(cat.x, renderY + 4, cat.width - 6, renderH);
-            
-            // Cabeza
-            ctx.fillRect(cat.x + cat.width - 14, renderY - 2, 14, 12);
-            // Orejas
-            ctx.fillStyle = '#ea580c';
-            ctx.fillRect(cat.x + cat.width - 12, renderY - 6, 3, 5);
-            ctx.fillRect(cat.x + cat.width - 4, renderY - 6, 3, 5);
-
-            // Dibujar Enemigos
-            for (let e of enemies) {
-                let screenEX = e.x - worldX;
-                ctx.fillStyle = e.data.color;
-                ctx.fillRect(screenEX, e.y, e.width, e.height);
-                // Ojos brillantes
-                ctx.fillStyle = '#38bdf8';
-                ctx.fillRect(screenEX + 6, e.y + 4, 3, 3);
-            }
-
-            // Dibujar Pescados
-            for (let itm of items) {
-                let screenIX = itm.x - worldX;
-                ctx.fillStyle = '#38bdf8';
-                ctx.fillRect(screenIX, itm.y + 4, 14, 8);
-            }
-        }
-
-        function loop() {
-            if (stopGame) return;
-            update();
-            draw();
-            requestAnimationFrame(loop);
-        }
-
-        initGame();
-    </script>
-</body>
-</html>
+        bindTouch('btn-
