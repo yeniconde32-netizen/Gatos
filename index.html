@@ -5,97 +5,410 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gatitos en Fuga: Crónicas Callejeras</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: #121212; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow-x: hidden; }
-        .container { width: 100%; max-width: 800px; padding: 20px; text-align: center; }
-        .screen { display: none; background: #1e1e1e; border-radius: 12px; padding: 30px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
-        .active { display: block; }
-        h1 { color: #f39c12; margin-bottom: 15px; font-size: 2.2rem; }
-        p { margin-bottom: 20px; color: #ccc; line-height: 1.6; }
-        .btn { background: #e67e22; color: white; border: none; padding: 12px 25px; font-size: 1rem; border-radius: 8px; cursor: pointer; transition: 0.3s; margin: 10px; font-weight: bold; }
-        .btn:hover { background: #d35400; transform: scale(1.05); }
-        .character-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 20px; }
-        .card { background: #2c2c2c; border-radius: 8px; padding: 20px; border: 2px solid transparent; transition: 0.3s; cursor: pointer; }
-        .card:hover { border-color: #f39c12; transform: translateY(-5px); }
-        .card h3 { color: #f1c40f; margin-bottom: 10px; }
-        #game-canvas { background: #000; width: 100%; height: 400px; border-radius: 8px; margin-top: 15px; display: block; }
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        h1, h2 {
+            color: #f39c12;
+            margin: 10px 0;
+        }
+        .btn {
+            background-color: #f39c12;
+            color: #121212;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            transition: 0.2s;
+        }
+        .btn:hover { background-color: #d35400; color: #fff; }
+        .hidden { display: none !important; }
+        
+        /* Contenedor del juego */
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 500px;
+            background: linear-gradient(to bottom, #1a1a2e, #16213e);
+            border: 3px solid #f39c12;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0px 8px 20px rgba(0,0,0,0.7);
+        }
+        canvas {
+            background: #111;
+            display: block;
+            margin: 0 auto;
+        }
+        /* HUD de Puntuación dentro del juego */
+        .hud {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: bold;
+            color: #f39c12;
+            pointer-events: none;
+            text-shadow: 2px 2px #000;
+        }
+        /* Espacios para Bloques de Anuncios */
+        .ad-banner {
+            width: 100%;
+            max-width: 400px;
+            height: 60px;
+            background-color: #222;
+            border: 1px dashed #f39c12;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-size: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .menu-card {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            max-width: 380px;
+            width: 90%;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div id="screen-intro" class="screen active">
-            <h1>🐾 Gatitos en Fuga 🐾</h1>
-            <p><strong>Cinemática inicial:</strong> Un camión de pescado se vuelca en el callejón central. El susto, un perro guardián furioso y una alcantarilla rota separan a los tres hermanos en rumbos distintos de la ciudad. ¡Cada uno debe sobrevivir a su propia pesadilla urbana para volver a encontrarse!</p>
-            <button class="btn" onclick="showScreen('screen-select')">Iniciar Aventura</button>
-        </div>
+    <!-- Bloque de Anuncio Superior -->
+    <div class="ad-banner">Espacio Publicitario / Monetag / AdSense (Top)</div>
 
-        <div id="screen-select" class="screen">
-            <h1>Elige tu Ruta</h1>
-            <p>Selecciona un gatito para vivir su campaña paralela:</p>
-            <div class="character-grid">
-                <div class="card" onclick="startCampaign('Agil', 'Tejados y Azoteas')">
-                    <h3>Gatito 1: El Ágil</h3>
-                    <p>Zona: Tejados. Salta obstáculos, esquiva palomas hostiles y atrapa ratones en las alturas.</p>
-                </div>
-                <div class="card" onclick="startCampaign('Fuerte', 'Mercado Central')">
-                    <h3>Gatito 2: El Fuerte</h3>
-                    <p>Zona: Mercado. Esquiva escobas y abre paso esquivando perros callejeros.</p>
-                </div>
-                <div class="card" onclick="startCampaign('Sigiloso', 'Cloacas Subterráneas')">
-                    <h3>Gatito 3: El Sigiloso</h3>
-                    <p>Zona: Cloacas. Un laberinto oscuro lleno de trampas y ratas gigantes.</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="screen-game" class="screen">
-            <h2 id="campaign-title">Campaña</h2>
-            <p id="campaign-desc">Superando obstáculos...</p>
-            <canvas id="game-canvas"></canvas>
-            <br>
-            <button class="btn" onclick="showScreen('screen-select')">Volver al Menú</button>
-        </div>
+    <!-- MENÚ PRINCIPAL -->
+    <div id="main-menu" class="menu-card">
+        <h1>Gatitos en Fuga</h1>
+        <p style="font-size: 14px; color: #ccc;">Cinemática Inicial: Un camión de pescado se vuelca en el callejón central. El susto, un perro guardián furioso y una alcantarilla rota separan a los tres hermanos en rumbos distintos de la ciudad. ¡Cada uno debe sobrevivir a su propia pesadilla urbana para volver a encontrarse!</p>
+        <button class="btn" onclick="showRouteMenu()">Iniciar Aventura</button>
     </div>
 
+    <!-- MENÚ DE RUTAS -->
+    <div id="route-menu" class="menu-card hidden">
+        <h2>Elige tu Ruta</h2>
+        <p style="font-size: 13px; color: #bbb;">Selecciona un gatito para vivir su campaña:</p>
+        
+        <div style="background:#2a2a2a; padding:10px; border-radius:6px; margin-bottom:10px; cursor:pointer;" onclick="startAgileGame()">
+            <strong style="color:#f39c12;">Gatito 1: El Ágil</strong><br>
+            <span style="font-size:12px; color:#ccc;">Zona: Tejados. Salta obstáculos, esquiva palomas y atrapa ratones.</span>
+        </div>
+        
+        <div style="background:#2a2a2a; padding:10px; border-radius:6px; margin-bottom:10px; opacity:0.6;">
+            <strong style="color:#f39c12;">Gatito 2: El Fuerte (Bloqueado)</strong><br>
+            <span style="font-size:12px; color:#ccc;">Zona: Mercado. Esquiva escobas y perros.</span>
+        </div>
+
+        <div style="background:#2a2a2a; padding:10px; border-radius:6px; margin-bottom:10px; opacity:0.6;">
+            <strong style="color:#f39c12;">Gatito 3: El Sigiloso (Bloqueado)</strong><br>
+            <span style="font-size:12px; color:#ccc;">Zona: Cloacas. Laberinto de ratas gigantes.</span>
+        </div>
+
+        <button class="btn" style="background:#444; color:#fff; padding:8px 16px; font-size:14px;" onclick="backToMain()">Volver</button>
+    </div>
+
+    <!-- PANTALLA DE JUEGO: GATITO ÁGIL -->
+    <div id="game-screen" class="hidden">
+        <h3 id="campaign-title" style="margin:5px 0;">Campaña: Gatito Ágil</h3>
+        <p style="font-size: 12px; color: #aaa; margin:0 0 5px 0;">Toca la pantalla o presiona ESPACIO para saltar.</p>
+        
+        <div id="game-container">
+            <div class="hud">
+                <span id="score-display">Puntos: 0</span>
+                <span id="items-display">Ratones: 0</span>
+            </div>
+            <canvas id="gameCanvas" width="400" height="500"></canvas>
+        </div>
+
+        <button class="btn" onclick="returnToMenu()">Volver al Menú</button>
+    </div>
+
+    <!-- Bloque de Anuncio Inferior -->
+    <div class="ad-banner">Espacio Publicitario / Banner Recompensas (Bottom)</div>
+
     <script>
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
+        const mainMenu = document.getElementById('main-menu');
+        const routeMenu = document.getElementById('route-menu');
+        const gameScreen = document.getElementById('game-screen');
+        
+        function showRouteMenu() {
+            mainMenu.classList.add('hidden');
+            routeMenu.classList.remove('hidden');
+        }
+
+        function backToMain() {
+            routeMenu.classList.add('hidden');
+            mainMenu.classList.remove('hidden');
+        }
+
+        function returnToMenu() {
+            stopGame = true;
+            gameScreen.classList.add('hidden');
+            routeMenu.classList.remove('hidden');
+        }
+
+        // --- SISTEMA DE AUDIO SINTETIZADO (Web Audio API) ---
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            let now = audioCtx.currentTime;
+            if (type === 'jump') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(400, now + 0.15);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.15);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            } else if (type === 'collect') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(500, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'hit') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(120, now);
+                osc.frequency.linearRampToValueAtTime(40, now + 0.3);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+        }
+
+        // --- MOTOR DEL JUEGO: GATITO 1 (TEJADOS) ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let stopGame = false;
+        let score = 0;
+        let miceCollected = 0;
+        let gameSpeed = 3;
+
+        let cat = {
+            x: 50,
+            y: 400,
+            width: 35,
+            height: 30,
+            dy: 0,
+            jumpPower: -10,
+            gravity: 0.6,
+            grounded: true
+        };
+
+        let obstacles = [];
+        let items = [];
+        let frameCount = 0;
+
+        function startAgileGame() {
+            initAudio();
+            routeMenu.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
             
-            if(screenId === 'screen-game') {
-                initGameCanvas();
+            // Reset de variables
+            stopGame = false;
+            score = 0;
+            miceCollected = 0;
+            gameSpeed = 3;
+            obstacles = [];
+            items = [];
+            cat.y = 400;
+            cat.dy = 0;
+            
+            loop();
+        }
+
+        // Controles táctiles y de teclado
+        window.addEventListener('keydown', e => {
+            if (e.code === 'Space' && !gameScreen.classList.contains('hidden')) {
+                triggerJump();
+            }
+        });
+
+        canvas.addEventListener('click', () => {
+            triggerJump();
+        });
+
+        function triggerJump() {
+            if (cat.grounded) {
+                cat.dy = cat.jumpPower;
+                cat.grounded = false;
+                playSound('jump');
             }
         }
 
-        function startCampaign(character, zone) {
-            document.getElementById('campaign-title').innerText = `Campaña: Gatito ${character}`;
-            document.getElementById('campaign-desc').innerText = `Ubicación: ${zone}. ¡Sobrevive al recorrido!`;
-            showScreen('screen-game');
+        function spawnObstacleOrItem() {
+            if (frameCount % 100 === 0) {
+                // Obstáculo: Paloma en el tejado
+                obstacles.push({
+                    x: canvas.width,
+                    y: 410,
+                    width: 30,
+                    height: 25,
+                    color: '#bdc3c7'
+                });
+            }
+            if (frameCount % 130 === 0) {
+                // Ítem: Ratón para recolectar
+                items.push({
+                    x: canvas.width,
+                    y: Math.random() > 0.5 ? 360 : 415,
+                    width: 20,
+                    height: 15,
+                    color: '#e67e22'
+                });
+            }
         }
 
-        function initGameCanvas() {
-            const canvas = document.getElementById('game-canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = canvas.parentElement.clientWidth - 60;
-            canvas.height = 400;
+        function update() {
+            if (stopGame) return;
 
-            // Bucle simple de animación para probar rendimiento en Vercel
-            let x = 50;
-            function draw() {
-                ctx.fillStyle = '#111';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Dibujar un "gatito" provisional de prueba
-                ctx.fillStyle = '#f39c12';
-                ctx.fillRect(x, 250, 40, 30);
-                
-                x += 2;
-                if (x > canvas.width) x = -40;
-                
-                requestAnimationFrame(draw);
+            frameCount++;
+            score++;
+            gameSpeed = 3 + Math.floor(score / 500); // Aumenta dificultad progresiva
+
+            document.getElementById('score-display').innerText = `Puntos: ${score}`;
+            document.getElementById('items-display').innerText = `Ratones: ${miceCollected}`;
+
+            // Física del gato
+            cat.dy += cat.gravity;
+            cat.y += cat.dy;
+
+            if (cat.y > 410) {
+                cat.y = 410;
+                cat.dy = 0;
+                cat.grounded = true;
             }
+
+            spawnObstacleOrItem();
+
+            // Mover y actualizar obstáculos (Palomas)
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].x -= gameSpeed;
+
+                // Colisión con el gato
+                if (
+                    cat.x < obstacles[i].x + obstacles[i].width &&
+                    cat.x + cat.width > obstacles[i].x &&
+                    cat.y < obstacles[i].y + obstacles[i].height &&
+                    cat.y + cat.height > obstacles[i].y
+                ) {
+                    playSound('hit');
+                    alert('¡Oh no! Una paloma hostil te derribó. Puntuación final: ' + score);
+                    stopGame = true;
+                    returnToMenu();
+                    return;
+                }
+
+                // Eliminar fuera de pantalla
+                if (obstacles[i].x + obstacles[i].width < 0) {
+                    obstacles.splice(i, 1);
+                }
+            }
+
+            // Mover e interactuar con ítems (Ratones)
+            for (let i = items.length - 1; i >= 0; i--) {
+                items[i].x -= gameSpeed;
+
+                // Recolección
+                if (
+                    cat.x < items[i].x + items[i].width &&
+                    cat.x + cat.width > items[i].x &&
+                    cat.y < items[i].y + items[i].height &&
+                    cat.y + cat.height > items[i].y
+                ) {
+                    playSound('collect');
+                    miceCollected++;
+                    score += 100; // Bonus de puntos por recolectar
+                    items.splice(i, 1);
+                } else if (items[i].x + items[i].width < 0) {
+                    items.splice(i, 1);
+                }
+            }
+        }
+
+        function draw() {
+            // Fondo del tejado
+            ctx.fillStyle = '#16213e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Línea de suelo (Tejado)
+            ctx.fillStyle = '#c0392b';
+            ctx.fillRect(0, 440, canvas.width, 60);
+            ctx.fillStyle = '#78281f';
+            ctx.fillRect(0, 440, canvas.width, 8);
+
+            // Dibujar Gato (Ágil - Color Naranja)
+            ctx.fillStyle = '#f39c12';
+            ctx.fillRect(cat.x, cat.y, cat.width, cat.height);
+            // Pequeñas orejas del gato
+            ctx.beginPath();
+            ctx.moveTo(cat.x + 5, cat.y);
+            ctx.lineTo(cat.x + 10, cat.y - 8);
+            ctx.lineTo(cat.x + 15, cat.y);
+            ctx.moveTo(cat.x + 20, cat.y);
+            ctx.lineTo(cat.x + 25, cat.y - 8);
+            ctx.lineTo(cat.x + 30, cat.y);
+            ctx.fillStyle = '#d35400';
+            ctx.fill();
+
+            // Dibujar Obstáculos (Palomas grises)
+            for (let obs of obstacles) {
+                ctx.fillStyle = obs.color;
+                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                // Pico de la paloma
+                ctx.fillStyle = '#f1c40f';
+                ctx.fillRect(obs.x - 4, obs.y + 8, 5, 4);
+            }
+
+            // Dibujar Ítems (Ratones / Pescados)
+            for (let item of items) {
+                ctx.fillStyle = item.color;
+                ctx.fillRect(item.x, item.y, item.width, item.height);
+            }
+        }
+
+        function loop() {
+            if (stopGame) return;
+            update();
             draw();
+            requestAnimationFrame(loop);
         }
     </script>
 </body>
