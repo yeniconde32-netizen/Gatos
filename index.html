@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gatitos en Fuga: Crónicas Callejeras - Edición Realista</title>
+    <title>Gatitos en Fuga: Capítulo 1 - La Huida del Callejón</title>
     <style>
-        * { box-sizing: border-box; }
         body {
-            background-color: #090a0f;
+            background-color: #0d1117; /* Fondo oscuro tipo cine */
             color: #ffffff;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Georgia', serif; /* Fuente clásica para narrativa */
             text-align: center;
             margin: 0;
             padding: 0;
@@ -29,39 +28,40 @@
             width: 100%;
             max-width: 420px;
             height: 100vh;
-            padding-top: 60px;
-            padding-bottom: 70px;
+            padding-top: 60px; /* Espacio para anuncio superior */
+            padding-bottom: 70px; /* Espacio para menú inferior */
         }
 
         #game-container {
             position: relative;
             width: 95%;
-            height: 68vh;
+            height: 72vh; /* Juego ocupa gran parte de la pantalla */
             max-height: 420px;
-            background: linear-gradient(to bottom, #111827, #1f2937);
-            border: 3px solid #f59e0b;
-            border-radius: 16px;
+            background: linear-gradient(to bottom, #0f172a, #1e293b); /* Cielo nocturno */
+            border: 3px solid #ea580c; /* Borde color fuego */
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(245, 158, 11, 0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.9);
         }
 
         canvas {
             display: block;
             width: 100%;
             height: 100%;
+            image-rendering: pixelated; /* Mantener estética cuadrito nítida */
         }
 
         .hud {
             position: absolute;
-            top: 10px;
+            top: 8px;
             left: 15px;
             right: 15px;
             display: flex;
             justify-content: space-between;
             font-size: 20px;
-            font-weight: 800;
-            color: #fbd38d;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+            font-weight: bold;
+            color: #fde68a; /* Amarillo dorado */
+            text-shadow: 2px 2px #000;
             z-index: 10;
             pointer-events: none;
         }
@@ -71,19 +71,19 @@
             max-width: 400px;
             height: 50px;
             background-color: #161e2e;
-            border: 1px dashed #f59e0b;
+            border: 1px dashed #ea580c;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #94a3b8;
+            color: #a3a3a3;
             font-size: 11px;
             margin: 6px 0;
-            border-radius: 8px;
+            border-radius: 6px;
         }
 
         .fixed-bottom {
             position: fixed;
-            bottom: 12px;
+            bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
             width: 90%;
@@ -92,30 +92,47 @@
         }
 
         .btn {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            background-color: #ea580c;
             color: #111827;
             border: none;
             padding: 14px;
             font-size: 16px;
-            font-weight: 800;
-            border-radius: 10px;
+            font-weight: bold;
+            border-radius: 8px;
             cursor: pointer;
             width: 100%;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
-            transition: transform 0.1s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
-        .btn:active { transform: scale(0.97); }
+        .btn:active { background-color: #c2410c; transform: translateY(2px); }
 
-        #game-over-overlay {
+        /* Pantalla de Narrativa / Cinemática */
+        #narrative-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 10, 15, 0.85);
-            backdrop-filter: blur(5px);
-            display: none;
+            background: rgba(0,0,0,0.92);
+            display: none; /* Oculto por defecto */
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 30;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+        #narrative-title {
+            color: #ef4444; /* Rojo peligro */
+            font-size: 24px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        #narrative-text {
+            color: #e5e7eb;
+            font-size: 18px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            max-width: 350px;
+        }
+        #narrative-btn {
+            width: 70%;
         }
     </style>
 </head>
@@ -127,14 +144,14 @@
         <div id="game-container">
             <div class="hud">
                 <span id="score-txt">Puntos: 0</span>
-                <span id="mice-txt">Ratones: 0</span>
+                <span id="chapter-txt">Cap 1: Huida</span>
             </div>
             <canvas id="gameCanvas" width="400" height="300"></canvas>
 
-            <div id="game-over-overlay">
-                <h2 style="color: #ef4444; font-size: 28px; margin: 0 0 5px 0;">¡Atrapado!</h2>
-                <p id="final-score-txt" style="color: #e2e8f0; font-size: 16px; margin: 0 0 20px 0;">Puntuación: 0</p>
-                <button class="btn" style="width: 80%;" onclick="initGame()">Reintentar Huida</button>
+            <div id="narrative-overlay">
+                <p id="narrative-title">¡CAPÍTULO 1 COMPLETADO!</p>
+                <p id="narrative-text">Has dejado el camión de pescado atrás. El perro guardián ya no te persigue. Estás a salvo en el tejado. ¿Es ese... el maullido de tu hermano?</p>
+                <button id="narrative-btn" class="btn" onclick="backToMenu()">Continuar al Capítulo 2</button>
             </div>
         </div>
         <div class="ad-banner">Anuncio Recompensas / Banner Inferior</div>
@@ -147,36 +164,40 @@
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const gameOverOverlay = document.getElementById('game-over-overlay');
+        const narrativeOverlay = document.getElementById('narrative-overlay');
+        const narrativeTitle = document.getElementById('narrative-title');
+        const narrativeText = document.getElementById('narrative-text');
+        const narrativeBtn = document.getElementById('narrative-btn');
 
         let stopGame = false;
+        let pausedForCinematic = false;
         let score = 0;
-        let miceCount = 0;
         let gameSpeed = 3.5;
         let frameCount = 0;
+        let chapterComplete = false;
 
         const CW = canvas.width;
         const CH = canvas.height;
         const GROUND_Y = CH - 60;
 
-        // Entidad Gato con animación procedural realista
+        // El Gato 1 (El Ágil - Bloque Naranja)
         let cat = {
             x: 50,
             y: GROUND_Y,
-            width: 42,
-            height: 32,
+            width: 38,
+            height: 30,
             dy: 0,
-            jumpForce: -10.5,
-            gravity: 0.55,
+            jumpForce: -11,
+            gravity: 0.6,
             isGrounded: true,
             legAnim: 0
         };
 
-        let obstacles = []; // Palomas y obstáculos urbanos
-        let items = [];     // Ratones callejeros
-        let particles = []; // Efectos de polvo y plumas
+        let enemies = [];
+        let items = [];
+        let particles = [];
 
-        // Audio Sintetizado de alta fidelidad
+        // Audio Sintetizado Cinemático
         let audioCtx = null;
         function playTone(freq1, freq2, duration, type) {
             try {
@@ -186,8 +207,8 @@
                 osc.type = type;
                 osc.frequency.setValueAtTime(freq1, audioCtx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(freq2, audioCtx.currentTime + duration);
-                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
                 osc.start();
@@ -196,242 +217,145 @@
         }
 
         function initGame() {
-            gameOverOverlay.style.display = 'none';
             stopGame = false;
+            pausedForCinematic = false;
+            chapterComplete = false;
             score = 0;
-            miceCount = 0;
-            gameSpeed = 3.8;
-            obstacles = [];
+            gameSpeed = 3.5;
+            frameCount = 0;
+            enemies = [];
             items = [];
             particles = [];
+            narrativeOverlay.style.display = 'none';
             cat.y = GROUND_Y;
-            cat.dy = 0;
             cat.isGrounded = true;
             loop();
         }
 
-        // Controles táctiles y teclado optimizados
+        // Controles
         window.addEventListener('keydown', e => { if(e.code === 'Space') makeJump(); });
         canvas.addEventListener('touchstart', e => { e.preventDefault(); makeJump(); });
-        canvas.addEventListener('mousedown', e => { e.preventDefault(); makeJump(); });
 
         function makeJump() {
-            if (stopGame) return;
+            if (stopGame || pausedForCinematic || chapterComplete) return;
             if (cat.isGrounded) {
                 cat.dy = cat.jumpForce;
                 cat.isGrounded = false;
-                playTone(180, 450, 0.15, 'triangle');
-                // Generar partículas de polvo al saltar
-                for(let i=0; i<5; i++) {
-                    particles.push({x: cat.x + 15, y: GROUND_Y + cat.height, vx: (Math.random()-0.5)*3, vy: -Math.random()*2, size: 4, alpha: 1, color: '#cbd5e1'});
-                }
+                playTone(150, 400, 0.15, 'square'); // Sonido de salto felino
+                // Estela de movimiento
+                particles.push({x: cat.x, y: cat.y, alpha: 1, color: '#fdba74'});
             }
         }
 
+        // ENEMIGOS DRAMÁTICOS (CAP 1)
+        const enemyEncounters = [
+            { name: "Cuervo Hostil", color: "#111827", heightBonus: -32, msg: "¡Un cuervo gigante te bloquea el paso!" },
+            { name: "Rata de Cloaca", color: "#166534", heightBonus: 0, msg: "¡Una rata mutante te corta el paso!" },
+            { name: "Perro Guardián (Lejos)", color: "#991b1b", heightBonus: 0, msg: "El perro guardián aún te sigue la pista..." }
+        ];
+
         function update() {
-            if (stopGame) return;
+            if (stopGame || pausedForCinematic || chapterComplete) return;
             frameCount++;
             score += Math.floor(gameSpeed / 3);
 
-            // Aceleración gradual de la dificultad
-            if (frameCount % 600 === 0) gameSpeed += 0.4;
+            // Aceleración gradual
+            if (frameCount % 400 === 0) gameSpeed += 0.3;
+
+            // CONDICIÓN DE FIN DEL CAPÍTULO 1 (Al llegar a 2000 puntos)
+            if (score >= 2000) {
+                triggerChapterEnd();
+                return;
+            }
 
             document.getElementById('score-txt').innerText = `Puntos: ${score}`;
-            document.getElementById('mice-txt').innerText = `Ratones: ${miceCount}`;
 
             // Física del gato
             cat.dy += cat.gravity;
             cat.y += cat.dy;
-
             if (cat.y >= GROUND_Y) {
                 cat.y = GROUND_Y;
                 cat.dy = 0;
                 cat.isGrounded = true;
-            } else {
-                cat.legAnim += 0.2;
             }
 
-            // Generador de Palomas Obstáculo
-            if (frameCount % 85 === 0) {
-                let pHeight = Math.random() > 0.5 ? 24 : 18;
-                let pY = pHeight === 24 ? GROUND_Y + 8 : GROUND_Y - 22; // Variación baja o alta
-                obstacles.push({
+            // Generador de Enemigos (Dramáticos)
+            let spawnRate = score < 500 ? 100 : (score < 1500 ? 80 : 60);
+            if (frameCount % spawnRate === 0) {
+                let typeIdx = score < 500 ? 0 : (Math.random() > 0.5 ? 1 : 0); // Aparecen ratas luego de 500pts
+                let enemyData = enemyEncounters[typeIdx];
+                enemies.push({
                     x: CW,
-                    y: pY,
-                    width: 30,
-                    height: pHeight,
-                    wingState: 0
+                    y: GROUND_Y + 4 + enemyData.heightBonus,
+                    width: 40,
+                    height: 24 - enemyData.heightBonus,
+                    data: enemyData
                 });
             }
 
-            // Generador de Ratones (Ítems)
-            if (frameCount % 120 === 0) {
-                items.push({
-                    x: CW,
-                    y: GROUND_Y - 4,
-                    width: 22,
-                    height: 14
-                });
+            // Generador de Comida (Ítem)
+            if (frameCount % 130 === 0) {
+                items.push({ x: CW, y: GROUND_Y + 5, width: 22, height: 14 });
             }
 
-            // Mover obstáculos (Palomas)
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                let obs = obstacles[i];
-                obs.x -= gameSpeed;
-                obs.wingState += 0.15; // Animación de aleteo
+            // Mover enemigos
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                let e = enemies[i];
+                e.x -= gameSpeed;
 
-                // Colisión precisa con el gato (Caja de impacto ajustada)
+                // Colisión Gato-Enemigo (Encuentro Cinemático)
                 if (
-                    cat.x + 6 < obs.x + obs.width - 4 &&
-                    cat.x + cat.width - 6 > obs.x + 4 &&
-                    cat.y + 4 < obs.y + obs.height &&
-                    cat.y + cat.height > obs.y + 4
+                    cat.x < e.x + e.width &&
+                    cat.x + cat.width > e.x &&
+                    cat.y < e.y + e.height &&
+                    cat.y + cat.height > e.y
                 ) {
-                    stopGame = true;
-                    playTone(300, 80, 0.35, 'sawtooth');
-                    document.getElementById('final-score-txt').innerText = `Puntuación Final: ${score}`;
-                    gameOverOverlay.style.display = 'flex';
+                    triggerCinematicEncounter(e);
                     return;
                 }
 
-                if (obs.x + obs.width < 0) obstacles.splice(i, 1);
+                if (e.x + e.width < 0) enemies.splice(i, 1);
             }
 
-            // Mover ítems (Ratones)
+            // Mover ítems
             for (let i = items.length - 1; i >= 0; i--) {
                 let itm = items[i];
                 itm.x -= gameSpeed;
-
                 if (
                     cat.x < itm.x + itm.width &&
                     cat.x + cat.width > itm.x &&
                     cat.y < itm.y + itm.height &&
                     cat.y + cat.height > itm.y
                 ) {
-                    miceCount++;
-                    score += 120;
-                    playTone(600, 1100, 0.08, 'sine');
-                    // Partículas de éxito al recolectar
-                    for(let p=0; p<4; p++) {
-                        particles.push({x: itm.x+10, y: itm.y, vx: (Math.random()-0.5)*4, vy: -Math.random()*3, size: 3, alpha: 1, color: '#f59e0b'});
-                    }
+                    score += 80;
+                    playTone(600, 1100, 0.05, 'sine'); // Sonido de éxito
                     items.splice(i, 1);
-                } else if (itm.x + itm.width < 0) {
-                    items.splice(i, 1);
-                }
+                } else if (itm.x + itm.width < 0) items.splice(i, 1);
             }
 
             // Actualizar partículas
-            for (let i = particles.length - 1; i >= 0; i--) {
-                let pt = particles[i];
-                pt.x += pt.vx;
-                pt.y += pt.vy;
-                pt.alpha -= 0.03;
-                if (pt.alpha <= 0) particles.splice(i, 1);
-            }
+            for(let p of particles) p.alpha -= 0.02;
+            particles = particles.filter(p => p.alpha > 0);
         }
 
-        function draw() {
-            // Fondo urbano nocturno con detalles realistas
-            ctx.fillStyle = '#0f172a';
-            ctx.fillRect(0, 0, CW, CH);
+        // FUNCIÓN DE ENCUENTRO CINEMÁTICO (Pausa Dramática)
+        function triggerCinematicEncounter(enemy) {
+            pausedForCinematic = true;
+            stopGame = true;
 
-            // Edificios lejanos de fondo (Parallax simple)
-            ctx.fillStyle = '#1e293b';
-            ctx.fillRect(20, 80, 50, CH - 140);
-            ctx.fillRect(90, 50, 60, CH - 110);
-            ctx.fillRect(180, 100, 45, CH - 160);
-            ctx.fillRect(250, 40, 70, CH - 100);
-            ctx.fillRect(340, 70, 55, CH - 130);
+            // Sonido grave de suspenso
+            playTone(100, 30, 0.8, 'sawtooth');
 
-            // Suelo del Tejado Texturizado
-            ctx.fillStyle = '#7f1d1d'; // Teja roja arcilla
-            ctx.fillRect(0, GROUND_Y + cat.height, CW, CH - GROUND_Y);
-            ctx.fillStyle = '#991b1b';
-            ctx.fillRect(0, GROUND_Y + cat.height, CW, 8);
-            // Detalles de separación de tejas
-            ctx.strokeStyle = '#450a0a';
-            ctx.lineWidth = 2;
-            for(let x=0; x<CW; x+=30) {
-                ctx.beginPath();
-                ctx.moveTo(x, GROUND_Y + cat.height + 8);
-                ctx.lineTo(x, CH);
-                ctx.stroke();
-            }
+            // Colocar al enemigo en primer plano sobre el gato para la toma
+            enemy.x = cat.x - 10;
+            enemy.y = cat.y - 5;
+            draw(); // Redibujar con el enemigo sobre el gato
 
-            // Dibujar Partículas
-            for(let pt of particles) {
-                ctx.fillStyle = pt.color;
-                ctx.globalAlpha = pt.alpha;
-                ctx.fillRect(pt.x, pt.y, pt.size, pt.size);
-                ctx.globalAlpha = 1.0;
-            }
-
-            // Dibujar Gato Realista Estilizado (Silueta con detalles felinos dinámicos)
-            ctx.fillStyle = '#f59e0b'; // Pelaje naranja cálido
-            ctx.fillRect(cat.x, cat.y + 6, cat.width - 6, cat.height - 6);
-            // Cabeza del gato
-            ctx.fillRect(cat.x + cat.width - 16, cat.y - 4, 18, 16);
-            // Orejas puntiagudas
-            ctx.beginPath();
-            ctx.moveTo(cat.x + cat.width - 14, cat.y - 4);
-            ctx.lineTo(cat.x + cat.width - 10, cat.y - 13);
-            ctx.lineTo(cat.x + cat.width - 6, cat.y - 4);
-            ctx.moveTo(cat.x + cat.width - 4, cat.y - 4);
-            ctx.lineTo(cat.x, cat.y - 13); // segunda oreja
-            ctx.lineTo(cat.x + cat.width - 16, cat.y - 4); // Ajuste
-            ctx.fillStyle = '#d97706';
-            ctx.fill();
-            // Cola dinámica
-            ctx.strokeStyle = '#f59e0b';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(cat.x, cat.y + 12);
-            ctx.quadraticCurveTo(cat.x - 12, cat.y - 5, cat.x - 8, cat.y - 12);
-            ctx.stroke();
-
-            // Dibujar Palomas (Obstáculos hostiles con alas animadas)
-            for (let obs of obstacles) {
-                ctx.fillStyle = '#94a3b8'; // Gris paloma
-                ctx.fillRect(obs.x, obs.y + 6, obs.width, obs.height - 6);
-                // Cabeza de paloma
-                ctx.fillStyle = '#64748b';
-                ctx.fillRect(obs.x + 2, obs.y + 2, 10, 10);
-                // Pico amarillo
-                ctx.fillStyle = '#fbbf24';
-                ctx.fillRect(obs.x - 2, obs.y + 5, 4, 3);
-                // Alas aleteando
-                ctx.fillStyle = '#cbd5e1';
-                let wingOffset = Math.sin(obs.wingState) * 6;
-                ctx.fillRect(obs.x + 10, obs.y - 4 + wingOffset, 12, 8);
-            }
-
-            // Dibujar Ratones (Ítems recolectables)
-            for (let itm of items) {
-                // Cuerpo del ratón
-                ctx.fillStyle = '#cbd5e1';
-                ctx.fillRect(itm.x + 4, itm.y + 4, 14, 9);
-                // Hocico y orejas
-                ctx.fillRect(itm.x, itm.y + 6, 5, 5);
-                // Cola delgada
-                ctx.strokeStyle = '#94a3b8';
-                ctx.lineWidth = 1.5;
-                ctx.beginPath();
-                ctx.moveTo(itm.x + 18, itm.y + 8);
-                ctx.quadraticCurveTo(itm.x + 26, itm.y + 14, window.innerWidth > 0 ? itm.x + 24 : 0, itm.y + 12);
-                ctx.stroke();
-            }
-        }
-
-        function loop() {
-            if (stopGame) return;
-            update();
-            draw();
-            requestAnimationFrame(loop);
-        }
-
-        // Arrancar al cargar
-        initGame();
-    </script>
-</body>
-</html>
+            // Mostrar cuadro de diálogo
+            // Usaremos un alert() simple por ahora para garantizar que detiene el juego en el móvil,
+            // pero lo ideal es el overlay que preparamos. Usemos el overlay.
+            // Modifiquemos el overlay para usarlo aquí.
+            
+            // REEMPLAZO DE DIÁLOGO:
+            // Asumiendo que el usuario quiere algo tipo "película de terror indie"
+            // Vamos a usar
