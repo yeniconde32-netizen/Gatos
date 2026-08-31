@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gatos: Destinos Cruzados - Edición Castillo Gótico</title>
+    <title>Gatos: Destinos Cruzados - Edición Gótica Detallada</title>
     <style>
         body, html {
             margin: 0;
@@ -22,14 +22,14 @@
             position: relative;
         }
 
-        /* Lienzo superior con la ilustración hermosa de castillos y torres góticas */
+        /* Lienzo superior con el castillo gótico y gatos detallados */
         #gameCanvas {
             flex: 1;
             width: 100%;
             display: block;
         }
 
-        /* Controles táctiles flotantes para mover al gato en el escenario */
+        /* Controles táctiles flotantes para mover al gato */
         .touch-controls {
             position: absolute;
             top: 15px;
@@ -48,7 +48,7 @@
 
         .control-btn {
             background: rgba(80, 20, 30, 0.8);
-            border: 2px solid #d4af37; /* Borde dorado antiguo */
+            border: 2px solid #d4af37;
             color: #fff;
             width: 44px;
             height: 44px;
@@ -138,10 +138,10 @@
 <body>
 
     <div id="game-container">
-        <!-- Lienzo superior con arte de castillo gótico e ilustración oscura -->
+        <!-- Lienzo superior con el castillo gótico y gatos detallados -->
         <canvas id="gameCanvas"></canvas>
 
-        <!-- Controles Táctiles de Movimiento -->
+        <!-- Controles Táctiles -->
         <div class="touch-controls">
             <div class="dpad-row">
                 <button class="control-btn" onclick="game.move('UP')">⬆️</button>
@@ -164,12 +164,12 @@
             </div>
             <h3 id="story-title">El Reino Olvidado: Destinos Cruzados</h3>
             <p id="story-text">
-                Frente a las imponentes murallas y torres góticas del antiguo castillo, los tres felinos contemplan el horizonte de piedra y niebla. Selecciona un personaje para guiarlo a través del reino:
+                Frente al imponente castillo gótico, los felinos buscan una salida. Selecciona un personaje para guiarlo por los dominios de piedra:
             </p>
             <div class="choices-container" id="button-group">
-                <button class="action-button" onclick="game.selectCat('misi', 'Misi (Guardián del Foso)', '#ff9900')">🐱 Seleccionar a Misi (Ruta del Foso y Murallas)</button>
-                <button class="action-button" onclick="game.selectCat('luna', 'Luna (Sombra del Salón)', '#f0f0f0')">🐈‍⬛ Seleccionar a Luna (Ruta de las Torres Altas)</button>
-                <button class="action-button" onclick="game.selectCat('copito', 'Copito (Escalador de Piedra)', '#a0a0a0')">🐈 Seleccionar a Copito (Ruta de los Arcos Góticos)</button>
+                <button class="action-button" onclick="game.selectCat('misi', 'Misi (El Gato Naranja)', '#e67e22')">🐱 Seleccionar a Misi (Ruta del Foso)</button>
+                <button class="action-button" onclick="game.selectCat('luna', 'Luna (La Gata Blanca)', '#f3f4f6')">🐈‍⬛ Seleccionar a Luna (Ruta de las Torres)</button>
+                <button class="action-button" onclick="game.selectCat('copito', 'Copito (El Gato Gris)', '#9ca3af')">🐈 Seleccionar a Copito (Ruta de los Arcos)</button>
             </div>
         </div>
     </div>
@@ -189,8 +189,8 @@
             x: canvas.width / 2,
             y: canvas.height - 75,
             name: 'Misi',
-            color: '#ff9900',
-            active: false
+            color: '#e67e22',
+            type: 'orange'
         };
 
         let gameState = { rats: 0, birds: 0 };
@@ -199,8 +199,7 @@
             selectCat: function(route, name, color) {
                 player.name = name;
                 player.color = color;
-                player.active = true;
-                player.x = 90;
+                player.x = 100;
                 player.y = canvas.height - 75;
 
                 const title = document.getElementById('story-title');
@@ -209,15 +208,15 @@
 
                 if (route === 'misi') {
                     title.innerText = "Ruta de Misi: El Foso del Castillo";
-                    text.innerText = "Misi recorre los cimientos de piedra antigua. ¡Usa las flechas para explorar los oscuros arcos del castillo!";
+                    text.innerText = "Misi explora los cimientos oscuros. ¡Usa las flechas para mover al gato detallado por el escenario!";
                     gameState.rats += 1;
                 } else if (route === 'luna') {
                     title.innerText = "Ruta de Luna: Las Torres Góticas";
-                    text.innerText = "Luna escala hacia las alturas donde la luz de la luna atraviesa los vitrales rotos. ¡Muévela con precaución!";
+                    text.innerText = "Luna avanza hacia la torre alta. ¡Usa los controles para guiarla con precisión!";
                     gameState.birds += 2;
                 } else if (route === 'copito') {
-                    title.innerText = "Ruta de Copito: Los Balcones de Piedra";
-                    text.innerText = "Copito camina sobre las cornisas del palacio abandonado. ¡Usa los controles para sortear los abismos!";
+                    title.innerText = "Ruta de Copito: Los Balcones";
+                    text.innerText = "Copito escala los muros de piedra. ¡Muévelo con los botones táctiles!";
                     gameState.rats += 1;
                     gameState.birds += 1;
                 }
@@ -238,10 +237,10 @@
                 if (dir === 'UP') player.y -= speed;
                 if (dir === 'DOWN') player.y += speed;
 
-                if (player.x < 30) player.x = 30;
-                if (player.x > canvas.width - 30) player.x = canvas.width - 30;
-                if (player.y < 60) player.y = 60;
-                if (player.y > canvas.height - 45) player.y > canvas.height - 45;
+                if (player.x < 35) player.x = 35;
+                if (player.x > canvas.width - 35) player.x = canvas.width - 35;
+                if (player.y < 70) player.y = 70;
+                if (player.y > canvas.height - 45) player.y = canvas.height - 45;
             },
 
             crossDestinies: function() {
@@ -250,7 +249,7 @@
                 const buttons = document.getElementById('button-group');
 
                 title.innerText = "¡Convergencia en el Castillo!";
-                text.innerText = "¡Los tres gatos se encuentran en la gran sala del trono! Juntos descubren un pasadizo secreto que ilumina todo el castillo y resuelve la aventura.";
+                text.innerText = "¡Los tres felinos se reúnen en la gran sala del trono, descifrando el enigma del reino oscuro!";
 
                 buttons.innerHTML = `
                     <button class="action-button" onclick="location.reload()">🔄 Reiniciar Aventura Gótica</button>
@@ -258,78 +257,113 @@
             }
         };
 
-        // Motor de renderizado con la ilustración hermosa del castillo gótico y torres
-        function drawCastleScene() {
+        // Función para dibujar un gato con forma real y detallada en el canvas
+        function drawDetailedCat(x, y, color, name) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            // Cuerpo del gato (óvalo estilizado)
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 22, 14, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Cabeza del gato
+            ctx.beginPath();
+            ctx.arc(14, -12, 12, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Orejas puntiagudas características
+            ctx.beginPath();
+            ctx.moveTo(7, -20);
+            ctx.lineTo(11, -32);
+            ctx.lineTo(17, -21);
+            ctx.moveTo(15, -20);
+            ctx.lineTo(21, -30);
+            ctx.lineTo(23, -19);
+            ctx.fillStyle = color;
+            ctx.fill();
+
+            // Cola arqueada elegante típica de gato
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(-18, -2);
+            ctx.quadraticCurveTo(-32, -18, -25, -28);
+            ctx.stroke();
+
+            // Ojos brillantes felinos
+            ctx.fillStyle = '#00ffcc';
+            ctx.fillRect(16, -15, 3, 3);
+
+            // Nombre flotante encima del gato
+            ctx.fillStyle = '#fef3c7';
+            ctx.font = '11px Courier New';
+            ctx.textAlign = 'center';
+            ctx.fillText(name, 0, -42);
+
+            ctx.restore();
+        }
+
+        // Motor principal de renderizado del escenario gótico
+        function drawScene() {
             let w = canvas.width;
             let h = canvas.height;
 
-            // 1. Cielo crepuscular de fantasía oscura y mística
+            // 1. Cielo crepuscular del castillo
             let skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.7);
             skyGrad.addColorStop(0, '#100b16');
-            skyGrad.addColorStop(0.4, '#241b2f');
+            skyGrad.addColorStop(0.5, '#241b2f');
             skyGrad.addColorStop(1, '#422836');
             ctx.fillStyle = skyGrad;
             ctx.fillRect(0, 0, w, h);
 
-            // Luna llena mística brillando suavemente
+            // Luna mística de fondo
             ctx.fillStyle = 'rgba(245, 230, 180, 0.2)';
             ctx.beginPath();
             ctx.arc(w * 0.75, h * 0.25, 45, 0, Math.PI * 2);
             ctx.fill();
             ctx.fillStyle = '#fef3c7';
             ctx.beginPath();
-            ctx.arc(w * 0.75, h * 0.25, 22, 0, Math.PI * 2);
+            ctx.arc(w * 0.75, h * 0.25, 20, 0, Math.PI * 2);
             ctx.fill();
 
-            // 2. Siluetas de los Castillos y Torres Góticas al fondo (Inspirado en la imagen bonita)
-            ctx.fillStyle = '#181120';
+            // 2. Castillo gótico detallado al fondo (inspirado en tu foto bonita)
+            ctx.fillStyle = '#16101d';
             let castleWidth = w * 0.55;
             let castleX = w * 0.22;
             let castleY = h * 0.28;
 
-            // Muralla principal del castillo
-            ctx.fillRect(castleX, castleY + 40, castleWidth, h * 0.45);
+            ctx.fillRect(castleX, castleY + 30, castleWidth, h * 0.45);
 
-            // Torres góticas con techos cónicos puntiagudos
-            // Torre Izquierda
-            ctx.fillRect(castleX - 15, castleY - 10, 30, h * 0.5);
+            // Torres góticas con picos
+            ctx.fillRect(castleX - 12, castleY - 10, 26, h * 0.48);
             ctx.beginPath();
-            ctx.moveTo(castleX - 25, castleY - 10);
-            ctx.lineTo(castleX, castleY - 50);
-            ctx.lineTo(castleX + 25, castleY - 10);
-            ctx.fillStyle = '#120c18';
+            ctx.moveTo(castleX - 22, castleY - 10);
+            ctx.lineTo(castleX + 1, castleY - 50);
+            ctx.lineTo(castleX + 24, castleY - 10);
+            ctx.fillStyle = '#100a16';
             ctx.fill();
 
-            // Torre Central Alta
-            ctx.fillRect(castleX + castleWidth * 0.4, castleY - 35, 38, h * 0.55);
+            // Torre Central
+            ctx.fillRect(castleX + castleWidth * 0.4, castleY - 35, 35, h * 0.52);
             ctx.beginPath();
             ctx.moveTo(castleX + castleWidth * 0.4 - 10, castleY - 35);
-            ctx.lineTo(castleX + castleWidth * 0.4 + 19, castleY - 85);
-            ctx.lineTo(castleX + castleWidth * 0.4 + 48, castleY - 35);
-            ctx.fillStyle = '#0d0812';
+            ctx.lineTo(castleX + castleWidth * 0.4 + 17, castleY - 80);
+            ctx.lineTo(castleX + castleWidth * 0.4 + 44, castleY - 35);
+            ctx.fillStyle = '#0a060f';
             ctx.fill();
 
-            // Torre Derecha
-            ctx.fillRect(castleX + castleWidth - 15, castleY + 10, 30, h * 0.4);
-            ctx.beginPath();
-            ctx.moveTo(castleX + castleWidth - 25, castleY + 10);
-            ctx.lineTo(castleX + castleWidth, castleY - 25);
-            ctx.lineTo(castleX + castleWidth + 25, castleY + 10);
-            ctx.fillStyle = '#150f1c';
-            ctx.fill();
-
-            // Ventanas brillantes en las torres del castillo
+            // Ventanas encendidas en las torres
             ctx.fillStyle = '#f59e0b';
-            ctx.fillRect(castleX + 5, castleY + 20, 6, 12);
-            ctx.fillRect(castleX + castleWidth * 0.4 + 16, castleY - 10, 6, 14);
-            ctx.fillRect(castleX + castleWidth - 8, castleY + 30, 5, 10);
+            ctx.fillRect(castleX + 5, castleY + 15, 5, 10);
+            ctx.fillRect(castleX + castleWidth * 0.4 + 15, castleY - 10, 5, 12);
 
-            // 3. Suelo de piedra del patio del castillo
+            // 3. Suelo de piedra del patio
             let groundY = h - 45;
             ctx.fillStyle = '#1c1412';
             ctx.fillRect(0, groundY, w, 45);
-
-            // Detalles de adoquines en el suelo
             ctx.strokeStyle = '#38251c';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -337,32 +371,13 @@
             ctx.lineTo(w, groundY);
             ctx.stroke();
 
-            // 4. EL GATO JUGADOR EN EL ESCENARIO 2D
-            ctx.fillStyle = player.color;
-            ctx.beginPath();
-            ctx.arc(player.x, player.y, 17, 0, Math.PI * 2); // Cuerpo
-            ctx.fill();
+            // 4. DIBUJAR AL GATO DETALLADO EN EL ESCENARIO
+            drawDetailedCat(player.x, player.y, player.color, player.name);
 
-            // Orejas puntiagudas del gatito
-            ctx.beginPath();
-            ctx.moveTo(player.x - 11, player.y - 25);
-            ctx.lineTo(player.x - 5, player.y - 42);
-            ctx.lineTo(player.x, player.y - 25);
-            ctx.moveTo(player.x, player.y - 25);
-            ctx.lineTo(player.x + 5, player.y - 42);
-            ctx.lineTo(player.x + 11, player.y - 25);
-            ctx.fillStyle = player.color;
-            ctx.fill();
-
-            // Nombre flotante del personaje activo
-            ctx.fillStyle = '#fef3c7';
-            ctx.font = '11px Courier New';
-            ctx.fillText(player.name, player.x - 28, player.y - 50);
-
-            requestAnimationFrame(drawCastleScene);
+            requestAnimationFrame(drawScene);
         }
 
-        drawCastleScene();
+        drawScene();
     </script>
 </body>
 </html>
