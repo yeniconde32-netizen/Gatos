@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gatos: Destinos Cruzados (Biohazard Style)</title>
+    <title>Gatos: Destinos Cruzados - Biohazard Edition</title>
     <style>
         body, html {
             margin: 0;
@@ -11,95 +11,52 @@
             height: 100%;
             overflow: hidden;
             font-family: 'Courier New', Courier, monospace;
-            background-color: #050505;
+            background-color: #030303;
         }
 
-        #game-screen {
+        #game-container {
             width: 100vw;
             height: 100vh;
-            background-image: linear-gradient(rgba(5, 5, 8, 0.65), rgba(5, 5, 8, 0.9)), url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1000&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            position: relative;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            position: relative;
         }
 
-        .visual-viewport {
+        /* Lienzo gráfico donde actúan los gatos y enemigos */
+        #gameCanvas {
             flex: 1;
             width: 100%;
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding: 15px;
-            box-sizing: border-box;
+            background-color: #0b0b0f;
+            display: block;
         }
 
-        .virtual-dpad {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: rgba(20, 0, 0, 0.7);
-            padding: 8px;
-            border-radius: 50%;
-            border: 1px solid rgba(180, 0, 0, 0.6);
-            backdrop-filter: blur(3px);
-        }
-
-        .dpad-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .control-btn {
-            background: rgba(139, 0, 0, 0.5);
-            border: 2px solid #b22222;
-            color: #fff;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-        }
-
-        .control-btn:active {
-            background: #ff0000;
-        }
-
+        /* Panel de control y narrativa inferior */
         .ui-panel {
             background: rgba(10, 10, 14, 0.96);
             border-top: 2px solid #8b0000;
             color: #d1d1d1;
-            padding: 15px 20px;
+            padding: 12px 18px;
             box-sizing: border-box;
             width: 100%;
-            max-height: 52vh;
+            max-height: 48vh;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             box-shadow: 0 -10px 30px rgba(0,0,0,0.95);
-            backdrop-filter: blur(4px);
         }
 
         #story-title {
             color: #ff3333;
             margin: 0;
-            font-size: 16px;
+            font-size: 15px;
             text-transform: uppercase;
             letter-spacing: 2px;
-            text-shadow: 0 0 8px rgba(255, 0, 0, 0.6);
+            text-shadow: 0 0 6px rgba(255, 0, 0, 0.6);
         }
 
         #story-text {
-            font-size: 14px;
+            font-size: 13px;
             line-height: 1.4;
             margin: 0;
             color: #cccccc;
@@ -108,7 +65,7 @@
         .stats-box {
             display: flex;
             gap: 15px;
-            font-size: 12px;
+            font-size: 11px;
             color: #ffb347;
             border-bottom: 1px solid #330000;
             padding-bottom: 4px;
@@ -117,16 +74,16 @@
         .choices-container {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         .action-button {
             background: rgba(139, 0, 0, 0.25);
             border: 1px solid #b22222;
             color: #ff9999;
-            padding: 10px 14px;
+            padding: 8px 12px;
             font-family: 'Courier New', Courier, monospace;
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             border-radius: 2px;
@@ -136,115 +93,219 @@
         .action-button:hover {
             background: #8b0000;
             color: #ffffff;
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+            box-shadow: 0 0 12px rgba(255, 0, 0, 0.8);
+        }
+
+        /* Controles táctiles flotantes sobre el canvas */
+        .overlay-controls {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .control-btn {
+            background: rgba(139, 0, 0, 0.6);
+            border: 2px solid #b22222;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 8px rgba(255, 0, 0, 0.5);
+        }
+
+        .control-btn:active {
+            background: #ff0000;
         }
     </style>
 </head>
 <body>
 
-    <div id="game-screen">
-        <div class="visual-viewport">
-            <div class="virtual-dpad" title="Control de Movimiento">
-                <button class="control-btn" onclick="gameRoute.handleControl('UP')">⬆️</button>
-                <div class="dpad-row">
-                    <button class="control-btn" onclick="gameRoute.handleControl('LEFT')">⬅️</button>
-                    <button class="control-btn" onclick="gameRoute.handleControl('RIGHT')">➡️</button>
-                </div>
-                <button class="control-btn" onclick="gameRoute.handleControl('DOWN')">⬇️</button>
-            </div>
-            <div>
-                <button class="control-btn" onclick="gameRoute.handleControl('ACTION')" style="border-color: #ff3333; color: #ff3333; background: rgba(255,0,0,0.2);">☣️</button>
-            </div>
+    <div id="game-container">
+        <!-- Controles flotantes rápidos -->
+        <div class="overlay-controls">
+            <button class="control-btn" onclick="game.moveCat('LEFT')">⬅️</button>
+            <button class="control-btn" onclick="game.moveCat('RIGHT')">➡️</button>
+            <button class="control-btn" onclick="game.actionAlert()" title="Acción de Alerta">☣️</button>
         </div>
 
+        <!-- Lienzo de Gráficos (Canvas) -->
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Panel de Historia e Interfaz -->
         <div class="ui-panel">
             <div class="stats-box">
                 <span id="stat-rats">🐭 Ratones: 0</span>
                 <span id="stat-birds">🐦 Palomas: 0</span>
+                <span id="stat-status"> estado: En Espera</span>
             </div>
-            <h3 id="story-title">Expedición: Elección de Campaña</h3>
+            <h3 id="story-title">Prólogo: La Caída de las Tierras Bajas</h3>
             <p id="story-text">
-                La marea tóxica ha fracturado al grupo. Cada gato se adentra en su propia pesadilla. Selecciona con qué personaje deseas iniciar la investigación:
+                Una densa niebla tóxica desciende sobre el páramo. Tres felinos intentan sobrevivir en campañas independientes, pero sus destinos están entrelazados por una amenaza común. Selecciona tu personaje:
             </p>
             <div class="choices-container" id="button-group">
-                <button class="action-button" onclick="gameRoute.selectCat('misi')">🐱 Campaña de Misi (Amenaza: Perros Mutantes en los Canales)</button>
-                <button class="action-button" onclick="gameRoute.selectCat('luna')">🐈‍⬛ Campaña de Luna (Amenaza: Gatos Infectados en el Bosque)</button>
-                <button class="action-button" onclick="gameRoute.selectCat('copito')">🐈 Campaña de Copito (Amenaza: Cazadores en las Ruinas)</button>
+                <button class="action-button" onclick="game.startCampaign('misi')">🐱 Campaña de Misi (Enemigo: Perro Mutante)</button>
+                <button class="action-button" onclick="game.startCampaign('luna')">🐈‍⬛ Campaña de Luna (Enemigo: Gato Infectado)</button>
+                <button class="action-button" onclick="game.startCampaign('copito')">🐈 Campaña de Copito (Enemigo: Cazador Humano)</button>
             </div>
         </div>
     </div>
 
     <script>
-        let gameState = { rats: 0, birds: 0, currentCat: '' };
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-        const gameRoute = {
-            updateStats: function() {
-                document.getElementById('stat-rats').innerText = `🐭 Ratones: ${gameState.rats}`;
-                document.getElementById('stat-birds').innerText = `🐦 Palomas: ${gameState.birds}`;
-            },
+        // Ajustar tamaño del canvas automáticamente
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight * 0.52;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
-            handleControl: function(direction) {
-                const text = document.getElementById('story-text');
-                if (direction === 'UP') text.innerText = "¡Avanzas con precaución por el pasaje oscuro analizando el entorno!";
-                if (direction === 'DOWN') text.innerText = "¡Te agachas esquivando los ruidos de una criatura al acecho!";
-                if (direction === 'LEFT') text.innerText = "¡Revisando la esquina oeste en busca de munición o refugio!";
-                if (direction === 'RIGHT') text.innerText = "¡Inspeccionando una puerta bloqueada por escombros!";
-                if (direction === 'ACTION') text.innerText = "☣️ ¡Alerta de peligro! Sientes que alguien (o algo) te vigila de cerca.";
-            },
+        // Estado del juego y personajes gráficos
+        let gameData = {
+            rats: 0,
+            birds: 0,
+            catX: canvas.width / 2 - 40,
+            catY: canvas.height / 2,
+            catName: 'Misi',
+            catColor: '#ffa500',
+            enemyX: canvas.width - 120,
+            enemyY: canvas.height / 2,
+            enemyType: 'Perro Mutante',
+            enemyColor: '#8b0000',
+            stage: 'intro'
+        };
 
-            selectCat: function(cat) {
-                gameState.currentCat = cat;
+        const game = {
+            startCampaign: function(cat) {
                 const title = document.getElementById('story-title');
                 const text = document.getElementById('story-text');
                 const buttons = document.getElementById('button-group');
 
                 if (cat === 'misi') {
-                    title.innerText = "Campaña de Misi: Los Canales Subterráneos";
-                    text.innerText = "Misi nada entre aguas negras. De repente, escucha gruñidos mecánicos: un perro mutante patrulla la compuerta. A lo lejos, ve una jaula con palomas y destellos de luz de la linterna de Luna en un túnel superior.";
-                    gameState.birds += 2;
-                    this.updateStats();
-                    buttons.innerHTML = `
-                        <button class="action-button" onclick="gameRoute.crossEvent('misi')">⚡ Distraer al perro mutante y cruzar ruta con Luna</button>
-                    `;
+                    gameData.catName = 'Misi';
+                    gameData.catColor = '#ffaa00'; // Naranja
+                    gameData.enemyType = '🐶 Perro Mutante';
+                    gameData.enemyColor = '#a00000';
+                    title.innerText = "Campaña de Misi: Los Canales";
+                    text.innerText = "Misi avanza con sigilo entre las tuberías. Un perro mutante bloquea la salida del canal de drenaje.";
+                    gameData.rats += 1;
                 } else if (cat === 'luna') {
-                    title.innerText = "Campaña de Luna: El Bosque Infectado";
-                    text.innerText = "Luna avanza entre árboles muertos. Oye pasos extraños: un grupo de gatos infectados por el virus toxico bloquean el camino. A lo alto de una torre de radio, atisba las bengalas de Copito.";
-                    gameState.rats += 3;
-                    this.updateStats();
-                    buttons.innerHTML = `
-                        <button class="action-button" onclick="gameRoute.crossEvent('luna')">⚡ Evadir a los infectados y conectar con la ruta de Copito</button>
-                    `;
+                    gameData.catName = 'Luna';
+                    gameData.catColor = '#333333'; // Negro oscuro
+                    gameData.enemyType = '🐱 Gato Infectado';
+                    gameData.enemyColor = '#551a8b';
+                    title.innerText = "Campaña de Luna: El Bosque";
+                    text.innerText = "Luna se adentra en la bruma. Un gato infectado por la toxina la acecha desde la maleza.";
+                    gameData.birds += 2;
                 } else if (cat === 'copito') {
-                    title.innerText = "Campaña de Copito: Zona de Cazadores";
-                    text.innerText = "Copito trepa por los andamios. Los cazadores humanos armados vigilan el perímetro con trampas láser. Al fondo, a través de una ventana rota, ve a Misi luchando en el agua.";
-                    gameState.rats += 1;
-                    gameState.birds += 1;
-                    this.updateStats();
-                    buttons.innerHTML = `
-                        <button class="action-button" onclick="gameRoute.crossEvent('copito')">⚡ Desactivar trampa láser y lanzar señal a Misi</button>
-                    `;
+                    gameData.catName = 'Copito';
+                    gameData.catColor = '#eeeeee'; // Blanco
+                    gameData.enemyType = '👤 Cazador Humano';
+                    gameData.enemyColor = '#4682b4';
+                    title.innerText = "Campaña de Copito: Las Ruinas";
+                    text.innerText = "Copito trepa por los andamios metálicos. Un cazador con linterna patrulla la zona inferior.";
+                    gameData.rats += 1;
+                    gameData.birds += 1;
                 }
-            },
 
-            crossEvent: function(cat) {
-                const title = document.getElementById('story-title');
-                const text = document.getElementById('story-text');
-                const buttons = document.getElementById('button-group');
-
-                title.innerText = "¡Punto de Convergencia (Cruce de Destinos)!";
-                if (cat === 'misi') {
-                    text.innerText = "Misi activa una válvula de vapor para ahuyentar al perro mutante. En ese preciso instante, Luna cae desde el conducto superior esquivando a los infectados, dejándote una llave de acceso antes de desaparecer en la niebla.";
-                } else if (cat === 'luna') {
-                    text.innerText = "Luna utiliza los cristales luminosos para cegar a los gatos infectados. Al saltar una cerca, choca de frente con Copito, quien venía huyendo de los cazadores. ¡Ambos comparten información vital y se separan!";
-                } else {
-                    text.innerText = "Copito desactiva la red láser de los cazadores. El cortocircuito ilumina el canal inferior, permitiendo que Misi escape de la emboscada del perro mutante. ¡Una alianza perfecta a distancia!";
-                }
+                document.getElementById('stat-rats').innerText = `🐭 Ratones: ${gameData.rats}`;
+                document.getElementById('stat-birds').innerText = `🐦 Palomas: ${gameData.birds}`;
+                document.getElementById('stat-status').innerText = ` estado: En Marcha`;
 
                 buttons.innerHTML = `
-                    <button class="action-button" onclick="location.reload()">🔄 Elegir Otra Campaña / Reiniciar</button>
+                    <button class="action-button" onclick="game.triggerCrossEvent()">⚡ Ejecutar Acción / Cruzar Rutas</button>
+                `;
+            },
+
+            moveCat: function(dir) {
+                if (dir === 'LEFT') gameData.catX -= 25;
+                if (dir === 'RIGHT') gameData.catX += 25;
+                // Limitar movimiento dentro de la pantalla
+                if (gameData.catX < 30) gameData.catX = 30;
+                if (gameData.catX > canvas.width - 80) gameData.catX = canvas.width - 80;
+            },
+
+            actionAlert: function() {
+                document.getElementById('story-text').innerText = `⚠️ ¡Alerta! ${gameData.catName} advierte la presencia de ${gameData.enemyType}. ¡Prepárate para esquivar!`;
+            },
+
+            triggerCrossEvent: function() {
+                const title = document.getElementById('story-title');
+                const text = document.getElementById('story-text');
+                const buttons = document.getElementById('button-group');
+
+                title.innerText = "¡Cruce de Destinos Estilo Resident Evil!";
+                text.innerText = `¡Las rutas colisionan! ${gameData.catName} logra evadir a ${gameData.enemyType} gracias a una distracción provocada por el resto del grupo en el sector adyacente. ¡Se abre un nuevo pasaje secreto!`;
+                
+                // Cambiar color del enemigo para indicar victoria/evasión
+                gameData.enemyColor = '#228b22'; 
+
+                buttons.innerHTML = `
+                    <button class="action-button" onclick="location.reload()">🔄 Reiniciar Campañas</button>
                 `;
             }
         };
+
+        // Bucle de renderizado gráfico en el Canvas (animación en vivo)
+        function drawScene() {
+            // Fondo oscuro estilo tétrico
+            ctx.fillStyle = '#07070b';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar suelo del escenario
+            ctx.fillStyle = '#14141c';
+            ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+
+            // Líneas de perspectiva o cuadrícula del entorno
+            ctx.strokeStyle = '#220000';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - 40);
+            ctx.lineTo(canvas.width, canvas.height - 40);
+            ctx.stroke();
+
+            // --- DIBUJAR GATITO PROTAGONISTA ---
+            ctx.fillStyle = gameData.catColor;
+            ctx.beginPath();
+            ctx.arc(gameData.catX, canvas.height - 70, 22, 0, Math.PI * 2); // Cuerpo
+            ctx.fill();
+            // Orejas del gato
+            ctx.beginPath();
+            ctx.moveTo(gameData.catX - 16, canvas.height - 85);
+            ctx.lineTo(gameData.catX - 8, canvas.height - 105);
+            ctx.lineTo(gameData.catX, canvas.height - 85);
+            ctx.moveTo(gameData.catX, canvas.height - 85);
+            ctx.lineTo(gameData.catX + 8, canvas.height - 105);
+            ctx.lineTo(gameData.catX + 16, canvas.height - 85);
+            ctx.fillStyle = gameData.catColor;
+            ctx.fill();
+
+            // Nombre del gato flotando
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '11px Courier New';
+            ctx.fillText(gameData.catName, gameData.catX - 18, canvas.height - 115);
+
+            // --- DIBUJAR ENEMIGO ---
+            ctx.fillStyle = gameData.enemyColor;
+            ctx.fillRect(gameData.enemyX, canvas.height - 85, 45, 45); // Forma del enemigo
+            ctx.fillStyle = '#ff3333';
+            ctx.font = '10px Courier New';
+            ctx.fillText(gameData.enemyType, gameData.enemyX - 10, canvas.height - 95);
+
+            requestAnimationFrame(drawScene);
+        }
+
+        drawScene();
     </script>
 </body>
 </html>
