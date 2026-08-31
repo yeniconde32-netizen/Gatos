@@ -3,324 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gatos: Destinos Cruzados - 2D Adventure</title>
+    <title>Gatos: Destinos Cruzados - Miniserie</title>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
         body {
-            background-color: #000;
-            color: #fff;
-            font-family: 'Cinzel', serif;
+            background-color: #050508;
+            color: #f8fafc;
+            font-family: 'Cinzel', serif, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow: hidden;
+            justify-content: center;
             height: 100vh;
-        }
-        #gameCanvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-            background: #121620;
-        }
-        #log-overlay {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 500px;
-            background: rgba(10, 15, 22, 0.85);
-            border: 1px solid #1e3a8a;
-            color: #60a5fa;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 11px;
-            height: 60px;
-            overflow-y: auto;
-            font-family: 'Courier New', Courier, monospace;
-            pointer-events: none;
-            z-index: 10;
+            overflow: hidden;
         }
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap');
+
+        /* CONTENEDOR PRINCIPAL TIPO CINEMÁTICA */
+        #app-container {
+            width: 100%;
+            max-width: 420px;
+            height: 100%;
+            max-height: 750px;
+            background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+            border: 2px solid #1e293b;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
+        }
+
+        /* CABECERA DE EPISODIO */
+        .header-ep {
+            background: rgba(15, 23, 42, 0.9);
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #334155;
+        }
+        .header-ep h3 { margin: 0; font-size: 14px; color: #38bdf8; letter-spacing: 1px; }
+        .header-ep h1 { margin: 5px 0 0; font-size: 18px; color: #f1f5f9; }
+
+        /* PANTALLA VISUAL / ESCENA */
+        .scene-screen {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
+            overflow: hidden;
+        }
+
+        /* AVATAR / ILUSTRACIÓN CENTRAL (VECTORIAL Y SEGURA) */
+        .character-art {
+            font-size: 85px;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* CAJA DE DIÁLOGO / HISTORIA (ESTILO NOVELA VISUAL) */
+        .story-box {
+            background: rgba(15, 23, 42, 0.95);
+            border-top: 2px solid #38bdf8;
+            padding: 15px;
+            min-height: 130px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .story-text {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #cbd5e1;
+            font-family: 'Courier New', Courier, monospace;
+            height: 60px;
+            overflow-y: auto;
+        }
+
+        /* BOTONES DE DECISIÓN / ACCIÓN */
+        .choices-area {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px;
+            background: #020617;
+            border-top: 1px solid #1e293b;
+        }
+        .btn-choice {
+            background: linear-gradient(90deg, #1e40af 0%, #1d4ed8 100%);
+            border: 1px solid #60a5fa;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 13px;
+            text-align: center;
+            cursor: pointer;
+            font-family: 'Cinzel', serif, sans-serif;
+            transition: 0.2s;
+        }
+        .btn-choice:active { background: #2563eb; transform: scale(0.98); }
+        .btn-ad {
+            background: linear-gradient(90deg, #b45309 0%, #d97706 100%);
+            border: 1px solid #fbbf24;
+        }
     </style>
 </head>
 <body>
 
-    <canvas id="gameCanvas"></canvas>
-    
-    <div id="log-overlay">
-        [Sistema] ¡Bienvenido a Gatos: Destinos Cruzados! Toca los botones en pantalla para moverte y atacar.
+    <div id="app-container">
+        <!-- CABECERA -->
+        <div class="header-ep">
+            <h3 id="ep-tag">EPISODIO 1: EL DESPERTAR</h3>
+            <h1 id="ep-title">Misi y el Refugio Interior</h1>
+        </div>
+
+        <!-- ESCENA VISUAL -->
+        <div class="scene-screen">
+            <div id="char-icon" class="character-art">🐱</div>
+        </div>
+
+        <!-- DIÁLOGO / NARRATIVA -->
+        <div class="story-box">
+            <div id="story-text" class="story-text">
+                La tormenta azota las afueras. Misi abre los ojos entre escombros metálicos; el peligro del Perro Mutante acecha cerca del perímetro. La resiliencia será su única salida.
+            </div>
+        </div>
+
+        <!-- OPCIONES Y MONETIZACIÓN (ANUNCIOS RECOMPENSADOS) -->
+        <div id="choices-container" class="choices-area">
+            <button class="btn-choice" onclick="makeChoice(1)">⚔️ Enfrentar al enemigo con garras</button>
+            <button class="btn-choice" onclick="makeChoice(2)">⚡ Usar agilidad para huir y buscar pistas</button>
+            <button class="btn-choice btn-ad" onclick="watchAdReward()">📺 Ver Anuncio (Desbloquear Episodio Especial)</button>
+        </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const logEl = document.getElementById('log-overlay');
+        // Estructura de la Miniserie Interactiva
+        let currentScene = 1;
 
-        // Recursos con iconos y avatares web seguros
-        const assets = {
-            backgrounds: [
-                "https://images.unsplash.com/photo-1542227072-b5317436c971?q=80&w=800&h=600&auto=format&fit=crop", 
-                "https://images.unsplash.com/photo-1611532737174-0f395d1f23b0?q=80&w=800&h=600&auto=format&fit=crop"  
-            ],
-            players: [
-                "https://cdn-icons-png.flaticon.com/512/2199/2199744.png", 
-                "https://cdn-icons-png.flaticon.com/512/3069/3069194.png"  
-            ],
-            enemies: [
-                "https://cdn-icons-png.flaticon.com/512/2414/2414615.png", 
-                "https://cdn-icons-png.flaticon.com/512/4316/4316271.png"  
-            ],
-            fx: "https://cdn-icons-png.flaticon.com/512/6676/6676047.png"
+        const episodes = {
+            1: {
+                tag: "EPISODIO 1: EL DESPERTAR",
+                title: "Misi y el Refugio Interior",
+                icon: "🐱",
+                text: "La tormenta azota las afueras. Misi abre los ojos entre escombros metálicos; el peligro del Perro Mutante acecha cerca del perímetro. La resiliencia será su única salida.",
+                c1: "⚔️ Enfrentar al enemigo con garras",
+                c2: "⚡ Usar agilidad para huir y buscar pistas"
+            },
+            2: {
+                tag: "EPISODIO 2: LA ALDEA OCULTA",
+                title: "El Camino de Luna",
+                icon: "🐈‍⬛",
+                text: "Luna cruza la niebla espesa. Las sombras amenazan con atraparla, pero una luz misteriosa al fondo de las torres abandona el silencio.",
+                c1: "🔍 Investigar las ruinas de las torres",
+                c2: "🐾 Seguir el rastro del Gato Naranja"
+            },
+            3: {
+                tag: "EPISODIO 3: CRUCE DE DESTINOS",
+                title: "La Unión de las Sombras",
+                icon: "🐾",
+                text: "Los caminos convergen. Las pistas recolectadas revelan al verdadero responsable detrás de la amenaza mutante. Es hora de la batalla final.",
+                c1: "🔥 Preparar el ataque definitivo en equipo",
+                c2: "🛡️ Activar el escudo de resiliencia grupal"
+            }
         };
 
-        const imgObjs = { bgs: [], players: [], enemies: [], fx: null };
-        let assetsLoaded = false;
-
-        function preloadAssets(callback) {
-            let loaded = 0;
-            const total = assets.backgrounds.length + assets.players.length + assets.enemies.length + 1;
-            
-            const onLoad = () => { 
-                loaded++; 
-                if(loaded >= total) {
-                    assetsLoaded = true;
-                    callback();
-                }
-            };
-            
-            assets.backgrounds.forEach(src => { let img = new Image(); img.onload = onLoad; img.onerror = onLoad; img.src = src; imgObjs.bgs.push(img); });
-            assets.players.forEach(src => { let img = new Image(); img.onload = onLoad; img.onerror = onLoad; img.src = src; imgObjs.players.push(img); });
-            assets.enemies.forEach(src => { let img = new Image(); img.onload = onLoad; img.onerror = onLoad; img.src = src; imgObjs.enemies.push(img); });
-            imgObjs.fx = new Image(); imgObjs.fx.onload = onLoad; imgObjs.fx.onerror = onLoad; imgObjs.fx.src = assets.fx;
-        }
-
-        let currentCampaign = 0;
-        const campaigns = [
-            { name: "Misi (Gato Naranja)", zone: "Refugio Interior", eName: "Perro Mutante", pHp: 100, eHp: 100, pMaxHp: 100, eMaxHp: 100 },
-            { name: "Luna (Gata Blanca)", zone: "Aldea de la Niebla", eName: "Sombra Fantasmal", pHp: 100, eHp: 120, pMaxHp: 100, eMaxHp: 120 }
-        ];
-
-        let playerPos = { x: 80, y: 300 };
-        let enemyPos = { x: 300, y: 300 };
-        let fxAnim = { active: false, x: 0, y: 0, timer: 0 };
-
-        let width, height;
-        function resizeCanvas() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            playerPos.y = height * 0.45;
-            enemyPos.y = height * 0.45;
-            enemyPos.x = width - 150;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        const dpadAreas = [];
-        const actionAreas = [];
-
-        function drawGame() {
-            ctx.clearRect(0, 0, width, height);
-
-            // 1. Fondo o color por defecto si carga
-            if (assetsLoaded && imgObjs.bgs[currentCampaign].complete) {
-                ctx.drawImage(imgObjs.bgs[currentCampaign], 0, 0, width, height);
+        function makeChoice(option) {
+            if (currentScene < 3) {
+                currentScene++;
+                loadEpisode(currentScene);
             } else {
-                ctx.fillStyle = '#1a1a2e';
-                ctx.fillRect(0, 0, width, height);
+                alert("¡Has completado el arco principal de la miniserie! Preparando el siguiente capítulo...");
+                currentScene = 1;
+                loadEpisode(currentScene);
             }
-
-            // Capa oscura cinemática
-            let gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width/1.2);
-            gradient.addColorStop(0, 'rgba(0,0,0,0.2)');
-            gradient.addColorStop(1, 'rgba(0,0,0,0.85)');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, width, height);
-
-            // 2. Personajes
-            let charSize = Math.min(width, height) * 0.22;
-            if (assetsLoaded) {
-                ctx.drawImage(imgObjs.players[currentCampaign], playerPos.x, playerPos.y, charSize, charSize);
-                ctx.drawImage(imgObjs.enemies[currentCampaign], enemyPos.x, enemyPos.y, charSize, charSize);
-            }
-
-            // 3. HUD y Botones táctiles
-            drawHUD(charSize);
-
-            // 4. Animación de ataque
-            if (fxAnim.active) {
-                ctx.globalAlpha = fxAnim.timer / 15;
-                if(imgObjs.fx) ctx.drawImage(imgObjs.fx, fxAnim.x, fxAnim.y, charSize/2, charSize/2);
-                ctx.globalAlpha = 1;
-                fxAnim.timer--;
-                if(fxAnim.timer <= 0) fxAnim.active = false;
-            }
-
-            requestAnimationFrame(drawGame);
         }
 
-        function drawHUD(cs) {
-            ctx.textAlign = 'center';
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 16px Cinzel, serif';
+        function loadEpisode(id) {
+            let ep = episodes[id];
+            document.getElementById('ep-tag').innerText = ep.tag;
+            document.getElementById('ep-title').innerText = ep.title;
+            document.getElementById('char-icon').innerText = ep.icon;
+            document.getElementById('story-text').innerText = ep.text;
             
-            let c = campaigns[currentCampaign];
-            ctx.fillText(c.name + " (" + c.zone + ")", width / 2, 40);
-
-            // Barras de vida
-            drawHealthBar(30, 60, 140, 14, c.pHp, c.pMaxHp, "#22c55e");
-            drawHealthBar(width - 170, 60, 140, 14, c.eHp, c.eMaxHp, "#ef4444");
-            ctx.font = '10px Courier New';
-            ctx.fillText("HP Gato", 100, 88);
-            ctx.fillText("HP Enemigo", width - 100, 88);
-
-            // D-Pad táctil inferior izquierdo
-            drawDPad(cs);
-
-            // Botones de acción inferior derecho
-            drawActionButtons(cs);
+            // Actualizar botones de opción
+            const container = document.getElementById('choices-container');
+            container.innerHTML = `
+                <button class="btn-choice" onclick="makeChoice(1)">${ep.c1}</button>
+                <button class="btn-choice" onclick="makeChoice(2)">${ep.c2}</button>
+                <button class="btn-choice btn-ad" onclick="watchAdReward()">📺 Ver Anuncio (Desbloquear Recompensa)</button>
+            `;
         }
 
-        function drawHealthBar(x, y, w, h, current, max, color) {
-            ctx.fillStyle = 'rgba(0,0,0,0.5)';
-            ctx.fillRect(x, y, w, h);
-            ctx.fillStyle = color;
-            ctx.fillRect(x, y, Math.max(0, (current / max) * w), h);
-            ctx.strokeStyle = '#fff';
-            ctx.strokeRect(x, y, w, h);
+        function watchAdReward() {
+            // Simulación de integración de red de anuncios recompensados (AdMob / Monetización)
+            alert("[Simulación de Anuncio] Reproduciendo video publicitario de 15 segundos para monetización... \n\n¡Recompensa obtenida: +1 Pista Maestra desbloqueada!");
         }
-
-        function drawDPad(cs) {
-            const btnSize = 55;
-            const startX = 30;
-            const startY = height - 190;
-            const gap = 60;
-
-            const buttons = [
-                { dx: 1, dy: 0, icon: '▲', id: 'up' },
-                { dx: 0, dy: 1, icon: '◀', id: 'left' },
-                { dx: 1, dy: 1, icon: '🔄', id: 'switch' },
-                { dx: 2, dy: 1, icon: '▶', id: 'right' },
-                { dx: 1, dy: 2, icon: '▼', id: 'down' }
-            ];
-            
-            dpadAreas.length = 0; 
-            buttons.forEach(b => {
-                let bx = startX + b.dx * gap;
-                let by = startY + b.dy * gap;
-                
-                ctx.fillStyle = 'rgba(30, 41, 59, 0.8)';
-                ctx.fillRect(bx, by, btnSize, btnSize);
-                ctx.strokeStyle = '#38bdf8';
-                ctx.strokeRect(bx, by, btnSize, btnSize);
-                
-                ctx.fillStyle = '#fff';
-                ctx.font = '18px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(b.icon, bx + btnSize/2, by + btnSize/1.6);
-                
-                dpadAreas.push({ x1: bx, y1: by, x2: bx+btnSize, y2: by+btnSize, id: b.id });
-            });
-        }
-
-        function drawActionButtons(cs) {
-            const btnWidth = 130;
-            const btnHeight = 42;
-            const startX = width - 150;
-            const startY = height - 180;
-            const gap = 50;
-
-            const actions = [
-                { text: '⚔️ Atacar', color: 'rgba(239, 68, 68, 0.7)', id: 'attack' },
-                { text: '⚡ Habilidad', color: 'rgba(59, 130, 246, 0.7)', id: 'skill' },
-                { text: '🔍 Investigar', color: 'rgba(234, 179, 8, 0.7)', id: 'search' }
-            ];
-
-            actionAreas.length = 0;
-            actions.forEach((a, i) => {
-                let ax = startX;
-                let ay = startY + i * gap;
-                
-                ctx.fillStyle = a.color;
-                ctx.fillRect(ax, ay, btnWidth, btnHeight);
-                ctx.strokeStyle = '#fff';
-                ctx.strokeRect(ax, ay, btnWidth, btnHeight);
-                
-                ctx.fillStyle = '#fff';
-                ctx.font = '12px Cinzel, serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(a.text, ax + btnWidth/2, ay + btnHeight/1.6);
-                
-                actionAreas.push({ x1: ax, y1: ay, x2: ax+btnWidth, y2: ay+btnHeight, id: a.id });
-            });
-        }
-
-        function log(msg) {
-            logEl.innerHTML += `<br>` + msg;
-            logEl.scrollTop = logEl.scrollHeight;
-        }
-
-        function handleInput(id) {
-            let c = campaigns[currentCampaign];
-            if (id === 'switch') {
-                currentCampaign = (currentCampaign + 1) % campaigns.length;
-                let nc = campaigns[currentCampaign];
-                log(`=== CAMPAÑA: ${nc.name} (${nc.zone}) ===`);
-                return;
-            }
-
-            let step = 25;
-            if (id === 'up') playerPos.y = Math.max(100, playerPos.y - step);
-            if (id === 'down') playerPos.y = Math.min(height - 220, playerPos.y + step);
-            if (id === 'left') playerPos.x = Math.max(20, playerPos.x - step);
-            if (id === 'right') playerPos.x = Math.min(width - 120, playerPos.x + step);
-
-            if (id === 'attack') {
-                fxAnim = { active: true, x: enemyPos.x, y: enemyPos.y, timer: 15 };
-                c.eHp = Math.max(0, c.eHp - 25);
-                log(`[Ataque] ¡Golpe crítico a ${c.eName}! Vida enemiga: ${c.eHp}/${c.eMaxHp}`);
-                if (c.eHp === 0) log(`🎉 ¡Zona despejada! El enemigo ha caído.`);
-            }
-
-            if (id === 'skill') {
-                log(`[Habilidad] ¡${c.name} activa su destreza de resiliencia!`);
-            }
-
-            if (id === 'search') {
-                log(`[Pista] Has descubierto una pista clave oculta en este sector.`);
-            }
-        }
-
-        // Control táctil para los botones dibujados
-        canvas.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            const rect = canvas.getBoundingClientRect();
-            const touch = e.touches[0];
-            const tx = touch.clientX - rect.left;
-            const ty = touch.clientY - rect.top;
-
-            // Verificar D-Pad
-            for (let b of dpadAreas) {
-                if (tx >= b.x1 && tx <= b.x2 && ty >= b.y1 && ty <= b.y2) {
-                    handleInput(b.id);
-                    return;
-                }
-            }
-
-            // Verificar Botones de Acción
-            for (let a of actionAreas) {
-                if (tx >= a.x1 && tx <= a.x2 && ty >= a.y1 && ty <= a.y2) {
-                    handleInput(a.id);
-                    return;
-                }
-            }
-        }, { passive: false });
-
-        preloadAssets(() => {
-            drawGame();
-        });
     </script>
 </body>
 </html>
