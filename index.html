@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gatos: Destinos Cruzados - Edición Definitiva</title>
+    <title>Gatos: Destinos Cruzados - Versión Definitiva</title>
     <style>
         body, html {
             margin: 0;
@@ -11,7 +11,7 @@
             height: 100%;
             overflow: hidden;
             font-family: 'Courier New', Courier, monospace;
-            background-color: #0b0610;
+            background-color: #050308;
         }
 
         #game-container {
@@ -26,28 +26,16 @@
             flex: 1;
             width: 100%;
             position: relative;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            transition: background-image 0.6s ease-in-out;
-        }
-
-        #scene-container::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5, 3, 8, 0.45);
-            pointer-events: none;
+            background-color: #111;
         }
 
         #gameCanvas {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 2;
-            pointer-events: none;
         }
 
-        /* Controles Táctiles estilo D-Pad */
+        /* Controles Táctiles D-Pad */
         .touch-controls {
             position: absolute;
             top: 15px;
@@ -65,7 +53,7 @@
         }
 
         .control-btn {
-            background: rgba(40, 20, 50, 0.85);
+            background: rgba(30, 20, 45, 0.9);
             border: 2px solid #f3d56d;
             color: #fff;
             width: 44px;
@@ -76,18 +64,15 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 0 10px rgba(243, 213, 109, 0.4);
             user-select: none;
-            -webkit-touch-callout: none;
         }
 
         .control-btn.active {
             background: #f3d56d !important;
             color: #000 !important;
-            transform: scale(0.9);
         }
 
-        /* Panel de Acciones HUD Superior Derecho */
+        /* HUD de Acciones */
         .action-panel-hud {
             position: absolute;
             top: 15px;
@@ -99,7 +84,7 @@
         }
 
         .action-hud-btn {
-            background: rgba(120, 20, 20, 0.85);
+            background: rgba(120, 20, 20, 0.9);
             border: 2px solid #ff4444;
             color: #fff;
             padding: 6px 12px;
@@ -108,13 +93,6 @@
             border-radius: 16px;
             cursor: pointer;
             box-shadow: 0 0 8px rgba(255, 68, 68, 0.5);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .action-hud-btn:active {
-            background: #ff2222;
         }
 
         /* Panel de Historia y Opciones Inferior */
@@ -125,12 +103,11 @@
             padding: 12px 18px;
             box-sizing: border-box;
             width: 100%;
-            height: 45vh;
+            height: 48vh;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 6px;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.9);
             z-index: 5;
         }
 
@@ -139,7 +116,6 @@
             margin: 0;
             font-size: 13px;
             text-transform: uppercase;
-            letter-spacing: 2px;
         }
 
         #story-text {
@@ -167,7 +143,7 @@
         }
 
         .action-button {
-            background: rgba(50, 25, 45, 0.7);
+            background: rgba(50, 25, 45, 0.8);
             border: 1px solid #c8a242;
             color: #f1e4c3;
             padding: 8px 12px;
@@ -176,40 +152,34 @@
             cursor: pointer;
             border-radius: 4px;
             text-align: left;
-            transition: 0.2s;
         }
 
         .action-button:hover {
             background: #7a2846;
             color: #ffffff;
-            border-color: #f3d56d;
         }
     </style>
 </head>
 <body>
 
     <div id="game-container">
-        <div id="scene-container" style="background-image: url('https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1000&auto=format&fit=crop');">
+        <div id="scene-container">
             <canvas id="gameCanvas"></canvas>
 
             <div class="touch-controls">
-                <div class="dpad-row">
-                    <button class="control-btn" data-dir="UP">⬆️</button>
-                </div>
+                <div class="dpad-row"><button class="control-btn" data-dir="UP">⬆️</button></div>
                 <div class="dpad-row">
                     <button class="control-btn" data-dir="LEFT">⬅️</button>
                     <button class="control-btn" data-dir="RIGHT">➡️</button>
                 </div>
-                <div class="dpad-row">
-                    <button class="control-btn" data-dir="DOWN">⬇️</button>
-                </div>
+                <div class="dpad-row"><button class="control-btn" data-dir="DOWN">⬇️</button></div>
             </div>
 
             <div class="action-panel-hud">
-                <button class="action-hud-btn" onclick="game.action('attack')">⚔️ Atacar Enemigo</button>
-                <button class="action-hud-btn" onclick="game.action('speed')">⚡ Súper Agilidad</button>
-                <button class="action-hud-btn" onclick="game.action('search')">🔍 Buscar Pista</button>
-                <button class="action-hud-btn" onclick="game.action('house')">🏠 Refugio / Casa</button>
+                <button class="action-hud-btn" onclick="game.action('attack')">⚔️ Atacar</button>
+                <button class="action-hud-btn" onclick="game.action('speed')">⚡ Agilidad</button>
+                <button class="action-hud-btn" onclick="game.action('search')">🔍 Pista</button>
+                <button class="action-hud-btn" onclick="game.action('house')">🏠 Refugio</button>
             </div>
         </div>
 
@@ -222,12 +192,12 @@
             </div>
             <h3 id="story-title">Gatos: Destinos Cruzados</h3>
             <p id="story-text">
-                Elige tu felino para desplegar su escenario exclusivo, sus enemigos específicos y su campaña argumental:
+                Elige tu felino para desplegar su escenario exclusivo, enemigos y campaña interactiva:
             </p>
             <div class="choices-container" id="button-group">
-                <button class="action-button" onclick="game.selectCat('misi', 'Misi (El Gato Naranja)', '#e67e22', 'industrial', 'Perros Mutantes del Canal')">🐱 Campaña de Misi - Pueblo Industrial y Canales</button>
-                <button class="action-button" onclick="game.selectCat('luna', 'Luna (La Gata Blanca)', '#f3f4f6', 'fog', 'Sombras y Gatos Infectados')">🐈‍⬛ Campaña de Luna - Aldea de la Niebla y Torres</button>
-                <button class="action-button" onclick="game.selectCat('copito', 'Copito (El Gato Gris)', '#9ca3af', 'stone', 'Bestias del Páramo de Piedra')">🐈 Campaña de Copito - Ciudadela de Piedra Antigua</button>
+                <button class="action-button" onclick="game.selectCat('misi', 'Misi (Gato Naranja)', '#e67e22', 'industrial', 'Perros Mutantes')">🐱 Campaña de Misi - Pueblo Industrial y Fábrica</button>
+                <button class="action-button" onclick="game.selectCat('luna', 'Luna (Gata Blanca)', '#f3f4f6', 'fog', 'Sombras del Bosque Nebuloso')">🐈‍⬛ Campaña de Luna - Aldea de la Niebla y Torres</button>
+                <button class="action-button" onclick="game.selectCat('copito', 'Copito (Gato Gris)', '#9ca3af', 'stone', 'Bestias de la Ciudadela Antigua')">🐈 Campaña de Copito - Páramo de Piedra y Ruinas</button>
             </div>
         </div>
     </div>
@@ -238,19 +208,19 @@
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight * 0.55;
+            canvas.height = window.innerHeight * 0.52;
         }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        const WORLD_WIDTH = 3000;
+        const WORLD_WIDTH = 2500;
 
         let player = {
             x: 300,
-            y: canvas.height * 0.75,
+            y: 150,
             name: 'Ninguno',
             color: '#e67e22',
-            speed: 4.5,
+            speed: 4,
             boost: 1,
             facing: 1
         };
@@ -260,32 +230,40 @@
         let currentCatKey = null;
         let isInside = false;
         let pistas = 0;
-        let currentEnemyName = 'Ninguno';
 
-        // Fondos reales exclusivos para cada campaña
+        // Escenarios definidos por código para garantizar que cambien siempre de forma visual
         const themes = {
             industrial: {
-                bg: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1000&auto=format&fit=crop",
-                enemyColor: "#dc2626",
-                enemyType: "Perro Mutante"
+                skyColor: "#1a0f08",
+                groundColor: "#2c1810",
+                decorColor: "#d97706",
+                name: "Pueblo Industrial y Fábrica",
+                enemyType: "Perro Mutante",
+                enemyColor: "#dc2626"
             },
             fog: {
-                bg: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1000&auto=format&fit=crop",
-                enemyColor: "#9333ea",
-                enemyType: "Sombra Fantasmal"
+                skyColor: "#06131a",
+                groundColor: "#0f232e",
+                decorColor: "#38bdf8",
+                name: "Aldea de la Niebla y Torres",
+                enemyType: "Sombra Fantasmal",
+                enemyColor: "#a855f7"
             },
             stone: {
-                bg: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=1000&auto=format&fit=crop",
-                enemyColor: "#ea580c",
-                enemyType: "Bestia de Piedra"
+                skyColor: "#18181b",
+                groundColor: "#27272a",
+                decorColor: "#f97316",
+                name: "Ciudadela de Piedra Antigua",
+                enemyType: "Bestia de Piedra",
+                enemyColor: "#ea580c"
             }
         };
 
         let activeTheme = themes.industrial;
 
         let enemies = [
-            { x: 1200, y: canvas.height * 0.75, dir: 1, speed: 1.2 },
-            { x: 2200, y: canvas.height * 0.75, dir: -1, speed: 1.0 }
+            { x: 900, dir: 1, speed: 1.5 },
+            { x: 1700, dir: -1, speed: 1.2 }
         ];
 
         const game = {
@@ -294,23 +272,20 @@
                 player.name = name;
                 player.color = color;
                 activeTheme = themes[themeKey];
-                currentEnemyName = enemyDesc;
-                player.x = 250;
+                player.x = 200;
+                player.y = canvas.height * 0.75;
                 isInside = false;
-
-                // Cambiar el fondo del escenario inmediatamente
-                document.getElementById('scene-container').style.backgroundImage = `url('${activeTheme.bg}')`;
 
                 document.getElementById('stat-cat').innerText = `🐱 Gato: ${name.split(' ')[0]}`;
                 document.getElementById('stat-enemy').innerText = `⚠️ Amenaza: ${activeTheme.enemyType}`;
-                document.getElementById('stat-zone').innerText = `📍 Zona: Exterior Exclusivo`;
+                document.getElementById('stat-zone').innerText = `📍 Zona: ${activeTheme.name}`;
 
                 document.getElementById('story-title').innerText = `Campaña Activa: ${name}`;
-                document.getElementById('story-text').innerText = `¡Has entrado a tu escenario único! Te enfrentas a: ${enemyDesc}. Usa las flechas táctiles arriba para moverte y los botones laterales para interactuar.`;
+                document.getElementById('story-text').innerText = `¡Escenario cargado con éxito! Estás en: ${activeTheme.name}. Cuidado con los ${enemyDesc}. Usa las flechas para moverte.`;
 
                 document.getElementById('button-group').innerHTML = `
-                    <button class="action-button" onclick="game.action('search')">🔍 Investigar Entorno en Busca de Pistas</button>
-                    <button class="action-button" onclick="game.action('house')">🏠 Entrar al Refugio Seguro</button>
+                    <button class="action-button" onclick="game.action('search')">🔍 Investigar Zona y Buscar Pistas</button>
+                    <button class="action-button" onclick="game.action('house')">🏠 Entrar al Refugio / Casa</button>
                 `;
             },
 
@@ -321,42 +296,38 @@
                 }
                 const text = document.getElementById('story-text');
                 if (type === 'attack') {
-                    text.innerText = `⚔️ ¡${player.name} ataca con ferocidad a los enemigos de su territorio! El peligro retrocede.`;
+                    text.innerText = `⚔️ ¡${player.name} ataca con sus garras a los enemigos de su entorno!`;
                 } else if (type === 'speed') {
-                    player.boost = 2.0;
-                    text.innerText = `⚡ ¡Agilidad extrema activada! Te mueves a gran velocidad por el escenario.`;
+                    player.boost = 2.2;
+                    text.innerText = `⚡ ¡Súper agilidad activada! Velocidad aumentada en el escenario.`;
                     setTimeout(() => { player.boost = 1; }, 4000);
                 } else if (type === 'search') {
                     pistas++;
                     document.getElementById('stat-pistas').innerText = `🔍 Pistas: ${pistas}`;
-                    text.innerText = `🔍 ¡Pista descubierta en tu territorio! Llevas ${pistas} pistas acumuladas.`;
+                    text.innerText = `🔍 ¡Pista secreta descubierta en el escenario! Total acumulado: ${pistas}.`;
                 } else if (type === 'house') {
                     isInside = !isInside;
                     if (isInside) {
                         document.getElementById('stat-zone').innerText = `📍 Zona: Refugio Interior`;
-                        text.innerText = `🏠 Has entrado a un refugio seguro dentro de tu escenario. Aquí estás a salvo de los enemigos.`;
+                        text.innerText = `🏠 Has entrado a una zona protegida dentro del mapa. Estás a salvo.`;
                     } else {
-                        document.getElementById('stat-zone').innerText = `📍 Zona: Exterior Exclusivo`;
-                        text.innerText = `🏠 Has salido al exterior de tu territorio. ¡Mantente alerta!`;
+                        document.getElementById('stat-zone').innerText = `📍 Zona: ${activeTheme.name}`;
+                        text.innerText = `🏠 Has salido de vuelta al exterior del escenario principal.`;
                     }
                 }
             }
         };
 
-        // Controles Táctiles Continuos de Alta Precisión
-        function setupTouch() {
-            document.querySelectorAll('.control-btn').forEach(btn => {
-                const dir = btn.getAttribute('data-dir');
-                const start = (e) => { e.preventDefault(); activeKeys[dir] = true; btn.classList.add('active'); };
-                const end = (e) => { e.preventDefault(); activeKeys[dir] = false; btn.classList.remove('active'); };
+        // Controles Táctiles
+        document.querySelectorAll('.control-btn').forEach(btn => {
+            const dir = btn.getAttribute('data-dir');
+            const start = (e) => { e.preventDefault(); activeKeys[dir] = true; btn.classList.add('active'); };
+            const end = (e) => { e.preventDefault(); activeKeys[dir] = false; btn.classList.remove('active'); };
 
-                btn.addEventListener('pointerdown', start);
-                btn.addEventListener('pointerup', end);
-                btn.addEventListener('pointerleave', end);
-                btn.addEventListener('pointercancel', end);
-            });
-        }
-        setupTouch();
+            btn.addEventListener('pointerdown', start);
+            btn.addEventListener('pointerup', end);
+            btn.addEventListener('pointerleave', end);
+        });
 
         function update() {
             let spd = player.speed * player.boost;
@@ -365,84 +336,96 @@
             if (activeKeys.UP) { player.y -= spd * 0.7; }
             if (activeKeys.DOWN) { player.y += spd * 0.7; }
 
-            // Límites del mapa
+            // Límites
             if (player.x < 30) player.x = 30;
             if (player.x > WORLD_WIDTH - 30) player.x = WORLD_WIDTH - 30;
-            if (player.y < canvas.height * 0.4) player.y = canvas.height * 0.4;
+            if (player.y < canvas.height * 0.35) player.y = canvas.height * 0.35;
             if (player.y > canvas.height - 25) player.y = canvas.height - 25;
 
-            // Cámara sigue al jugador
+            // Cámara
             cameraX = player.x - canvas.width / 2;
             if (cameraX < 0) cameraX = 0;
             if (cameraX > WORLD_WIDTH - canvas.width) cameraX = WORLD_WIDTH - canvas.width;
 
-            // Movimiento de enemigos en el exterior
+            // Enemigos
             if (currentCatKey && !isInside) {
                 enemies.forEach(en => {
                     en.x += en.dir * en.speed;
-                    if (en.x > WORLD_WIDTH - 200 || en.x < 300) en.dir *= -1;
+                    if (en.x > WORLD_WIDTH - 150 || en.x < 200) en.dir *= -1;
                 });
             }
         }
 
         function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // 1. Fondo del escenario según el tema activo
+            ctx.fillStyle = activeTheme.skyColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.save();
             ctx.translate(-cameraX, 0);
 
-            // Suelo del nivel
-            ctx.fillStyle = 'rgba(10, 6, 12, 0.85)';
+            // Dibujar elementos de fondo únicos (edificios / torres vectoriales)
+            ctx.fillStyle = activeTheme.groundColor;
+            for (let i = 0; i < WORLD_WIDTH; i += 300) {
+                ctx.fillRect(i + 50, canvas.height - 160, 120, 130);
+                ctx.fillStyle = activeTheme.decorColor;
+                ctx.fillRect(i + 80, canvas.height - 130, 20, 30); // Ventanas iluminadas
+                ctx.fillStyle = activeTheme.groundColor;
+            }
+
+            // Suelo
+            ctx.fillStyle = activeTheme.groundColor;
             ctx.fillRect(0, canvas.height - 30, WORLD_WIDTH, 30);
 
-            // Dibujar Enemigos si estamos en el exterior
+            // 2. Dibujar Enemigos en el exterior
             if (currentCatKey && !isInside) {
                 enemies.forEach(en => {
+                    let ey = canvas.height - 50;
                     ctx.fillStyle = activeTheme.enemyColor;
                     ctx.beginPath();
-                    ctx.ellipse(en.x, en.y - 12, 18, 12, 0, 0, Math.PI * 2);
+                    ctx.ellipse(en.x, ey, 20, 12, 0, 0, Math.PI * 2);
                     ctx.fill();
-                    // Ojos amenazantes del enemigo
-                    ctx.fillStyle = '#ffff00';
-                    ctx.fillRect(en.x + (en.dir > 0 ? 5 : -10), en.y - 16, 3, 3);
+                    // Ojos del enemigo
+                    ctx.fillStyle = '#ff0';
+                    ctx.fillRect(en.x + (en.dir > 0 ? 8 : -12), ey - 5, 4, 4);
 
                     ctx.fillStyle = '#ffffff';
                     ctx.font = '10px Courier New';
-                    ctx.fillText(`⚠️ ${activeTheme.enemyType}`, en.x - 35, en.y - 30);
+                    ctx.fillText(`⚠️ ${activeTheme.enemyType}`, en.x - 40, ey - 22);
                 });
             }
 
-            // Dibujar al Gato Protagonista con más detalle visual
+            // 3. Dibujar al Gato Protagonista con diseño vectorial real
             ctx.save();
             ctx.translate(player.x, player.y);
             ctx.scale(player.facing, 1);
 
-            // Cuerpo del gato
+            // Cuerpo
             ctx.fillStyle = currentCatKey ? player.color : '#e67e22';
             ctx.beginPath();
-            ctx.ellipse(0, -4, 22, 14, 0, 0, Math.PI * 2);
+            ctx.ellipse(0, -6, 22, 14, 0, 0, Math.PI * 2);
             ctx.fill();
 
             // Cabeza
             ctx.beginPath();
-            ctx.arc(12, -12, 11, 0, Math.PI * 2);
+            ctx.arc(12, -14, 11, 0, Math.PI * 2);
             ctx.fill();
 
-            // Orejas puntiagudas
+            // Orejas
             ctx.beginPath();
-            ctx.moveTo(7, -20); ctx.lineTo(10, -28); ctx.lineTo(15, -20);
+            ctx.moveTo(7, -22); ctx.lineTo(10, -30); ctx.lineTo(15, -22);
             ctx.fill();
 
-            // Ojos brillantes del gato
+            // Ojos
             ctx.fillStyle = '#00ffcc';
-            ctx.fillRect(14, -14, 3, 3);
+            ctx.fillRect(14, -16, 3, 3);
             ctx.restore();
 
-            // Nombre flotante del personaje
+            // Nombre encima del gato
             ctx.fillStyle = '#fef3c7';
             ctx.font = '11px Courier New';
             ctx.textAlign = 'center';
-            ctx.fillText(player.name, player.x, player.y - 42);
+            ctx.fillText(player.name, player.x, player.y - 40);
 
             ctx.restore();
         }
