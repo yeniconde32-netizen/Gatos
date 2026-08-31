@@ -17,7 +17,8 @@
         #game-screen {
             width: 100vw;
             height: 100vh;
-            background-image: url('image_6.png'); /* Asegúrate que este sea el nombre exacto de tu archivo en GitHub */
+            /* IMAGEN DE PRUEBA EN LÍNEA TEMPORAL */
+            background-image: url('https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=1000&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -27,7 +28,6 @@
             justify-content: space-between;
         }
 
-        /* ÁREA SUPERIOR CON CONTROLES ESTILO MANDO EN PANTALLA */
         .visual-viewport {
             flex: 1;
             width: 100%;
@@ -39,7 +39,6 @@
             box-sizing: border-box;
         }
 
-        /* DISEÑO DE CONTROLES VIRTUALES (PAD / PALANCA / BOTONES) */
         .virtual-dpad {
             display: flex;
             flex-direction: column;
@@ -75,7 +74,6 @@
             background: #ff8c00;
         }
 
-        /* PANEL DE INTERFAZ INFERIOR */
         .ui-panel {
             background: rgba(11, 13, 20, 0.88);
             border-top: 2px solid #00ffff;
@@ -145,9 +143,8 @@
 <body>
 
     <div id="game-screen">
-        <!-- ÁREA SUPERIOR CON CONTROLES DE MANDO FLOTANTES EN PANTALLA -->
         <div class="visual-viewport">
-            <div class="virtual-dpad" title="Pad direccional">
+            <div class="virtual-dpad">
                 <button class="control-btn" onclick="gameRoute.handleControl('UP')">⬆️</button>
                 <div class="dpad-row">
                     <button class="control-btn" onclick="gameRoute.handleControl('LEFT')">⬅️</button>
@@ -155,12 +152,11 @@
                 </div>
                 <button class="control-btn" onclick="gameRoute.handleControl('DOWN')">⬇️</button>
             </div>
-            <div style="display: flex; gap: 8px;">
+            <div>
                 <button class="control-btn" onclick="gameRoute.handleControl('ACTION')" style="border-color: #00ffff; color: #00ffff; background: rgba(0,255,255,0.2);">🅰️</button>
             </div>
         </div>
 
-        <!-- PANEL DE TEXTO Y ACCIONES -->
         <div class="ui-panel">
             <div class="stats-box">
                 <span id="stat-rats">🐭 Ratones: 0</span>
@@ -203,35 +199,29 @@
 
                 if (route === 'orilla') {
                     title.innerText = "Ruta de Misi: Canales Inundados";
-                    text.innerText = "Misi avanza por los tubos. Ve palomas atrapadas en una red. ¡Usa los controles de arriba o pulsa una opción!";
+                    text.innerText = "Misi avanza por los tubos. Ve palomas atrapadas en una red.";
                     gameState.birds += 2;
                     this.updateStats();
-                    buttons.innerHTML = `
-                        <button class="action-button" onclick="gameRoute.action()">⚡ Liberar a las palomitas</button>
-                    `;
+                    buttons.innerHTML = `<button class="action-button" onclick="gameRoute.action()">⚡ Liberar a las palomitas</button>`;
                 } else if (route === 'bosque') {
                     title.innerText = "Ruta de Luna: Bosque de Cristal";
                     text.innerText = "Luna esquiva perros salvajes cerca de los cristales luminosos.";
                     gameState.rats += 3;
                     this.updateStats();
-                    buttons.innerHTML = `
-                        <button class="action-button" onclick="gameRoute.action()">⚡ Salvar a los ratoncitos</button>
-                    `;
+                    buttons.innerHTML = `<button class="action-button" onclick="gameRoute.action()">⚡ Salvar a los ratoncitos</button>`;
                 } else if (route === 'ruinas') {
                     title.innerText = "Ruta de Copito: Andamios";
                     text.innerText = "Copito vigila a los cazadores desde arriba.";
                     gameState.rats += 1;
                     gameState.birds += 1;
                     this.updateStats();
-                    buttons.innerHTML = `
-                        <button class="action-button" onclick="gameRoute.action()">⚡ Abrir la jaula secreta</button>
-                    `;
+                    buttons.innerHTML = `<button class="action-button" onclick="gameRoute.action()">⚡ Abrir la jaula secreta</button>`;
                 }
             },
 
             action: function() {
                 document.getElementById('story-title').innerText = "¡Cruce de Caminos!";
-                document.getElementById('story-text').innerText = "¡Has rescatado a los animales y te has cruzado de paso con tus hermanos en el camino!";
+                document.getElementById('story-text').innerText = "¡Has rescatado a los animales y te has cruzado de paso con tus hermanos!";
                 document.getElementById('button-group').innerHTML = `<button class="action-button" onclick="location.reload()">🔄 Reiniciar Aventura</button>`;
             }
         };
