@@ -3,310 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saga de Gatitos en Fuga: Cap 1 - Callejón</title>
+    <title>Gatos: Destinos Cruzados y Rescate Estelar</title>
     <style>
-        body {
-            background-color: #090d16;
-            color: #ffffff;
-            font-family: 'Georgia', serif; /* Fuente clásica para narrativa */
-            text-align: center;
+        body, html {
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
+            height: 100%;
             overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #0b0d14;
         }
 
-        #game-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            max-width: 420px;
+        /* CONTENEDOR PRINCIPAL CON ESTILO CINEMÁTICO 2D */
+        #game-screen {
+            width: 100vw;
             height: 100vh;
-            padding-top: 50px;
-            padding-bottom: 20px;
-        }
-
-        #game-container {
+            background-image: url('image_6.png'); /* Puedes cambiar esta imagen por la ruta de tu fondo */
+            background-size: cover;
+            background-position: center bottom;
+            background-repeat: no-repeat;
             position: relative;
-            width: 95%;
-            height: 56vh;
-            max-height: 320px;
-            background: #111827; /* Fondo callejón */
-            border: 3px solid #ea580c; /* Borde color fuego */
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(234, 88, 12, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
         }
 
-        canvas {
-            display: block;
+        /* CAPA OSCURA PARA QUE EL TEXTO SEA LEGIBLE */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            image-rendering: pixelated;
+            background: rgba(11, 13, 20, 0.45);
+            z-index: 1;
         }
 
-        .hud {
-            position: absolute;
-            top: 6px;
-            left: 12px;
-            right: 12px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 16px;
-            font-weight: bold;
-            color: #fde68a;
-            text-shadow: 2px 2px #000;
-            z-index: 10;
-            pointer-events: none;
-        }
-
-        /* Controles Táctiles 2D */
-        .controls-container {
-            width: 95%;
-            max-width: 400px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .ctrl-btn {
-            background-color: #ea580c;
-            color: #111827;
-            border: none;
-            padding: 15px 0;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(234, 88, 12, 0.4);
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        .ctrl-btn:active {
-            background-color: #c2410c;
-            transform: translateY(2px);
-        }
-
-        .ad-banner {
-            width: 100%;
-            max-width: 400px;
-            height: 45px;
-            background-color: #111827;
-            border: 1px dashed #ea580c;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ea580c;
-            font-size: 10px;
-            margin: 4px 0;
-            border-radius: 6px;
-        }
-
-        .fixed-bottom {
-            margin-top: 8px;
-            width: 90%;
-            max-width: 380px;
-        }
-
-        .btn {
-            background-color: #ea580c;
-            color: #111827;
-            border: none;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-
-        /* Pantalla Cinemática / Narrativa */
-        #cinematic-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5, 5, 10, 0.95);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 30;
-            padding: 20px;
+        /* PANEL DE INTERFAZ (UI) */
+        .ui-panel {
+            position: relative;
+            z-index: 2;
+            background: rgba(11, 13, 20, 0.9);
+            border-top: 2px solid #00ffff;
+            color: #e0e0e0;
+            padding: 25px;
             box-sizing: border-box;
+            width: 100%;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
         }
-        #cinematic-box {
-            border: 2px solid #ea580c;
-            padding: 15px;
-            background: rgba(234, 88, 12, 0.1);
-            border-radius: 8px;
-            max-width: 330px;
+
+        #story-title {
+            color: #00ffff;
+            margin: 0;
+            font-size: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
-        #cinematic-title {
-            color: #ef4444; /* Rojo peligro */
-            font-size: 18px;
-            margin-top: 0;
-            margin-bottom: 8px;
+
+        #story-text {
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
         }
-        #cinematic-text {
-            color: #e5e7eb;
+
+        .stats-box {
+            display: flex;
+            gap: 20px;
             font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 15px;
-            font-style: italic;
+            color: #ffb347;
+            border-bottom: 1px solid #1f4068;
+            padding-bottom: 8px;
+        }
+
+        .choices-container {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: rgba(255, 140, 0, 0.1);
+            border: 1px solid #ff8c00;
+            color: #ffb347;
+            padding: 12px 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 3px rgba(255, 179, 71, 0.5);
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #ff8c00;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.8);
         }
     </style>
 </head>
 <body>
 
-    <div class="ad-banner" style="position: fixed; top: 2px;">Anuncio Superior / Monetag</div>
-
-    <div id="game-wrapper">
-        <div id="game-container">
-            <div class="hud">
-                <span id="score-txt">Puntos: 0</span>
-                <span id="chapter-txt">Cap 1: Callejón</span>
+    <div id="game-screen">
+        <div class="overlay"></div>
+        <div class="ui-panel">
+            <div class="stats-box">
+                <span id="stat-rats">🐭 Ratones rescatados: 0</span>
+                <span id="stat-birds">🐦 Palomas rescatadas: 0</span>
             </div>
-            <canvas id="gameCanvas" width="400" height="300"></canvas>
-
-            <div id="cinematic-overlay">
-                <div id="cinematic-box">
-                    <h3 id="cinematic-title">¡ALERTA!</h3>
-                    <p id="cinematic-text">Mensaje...</p>
-                    <button class="btn" id="cinematic-btn" onclick="handleCinematicAction()">Continuar</button>
-                </div>
+            <h3 id="story-title">Capítulo 1: La Gran Inundación</h3>
+            <p id="story-text">
+                Una marea de agua tóxica y turbulenta comienza a cubrir las tierras bajas. Los cazadores humanos sueltan a sus perros salvajes y el caos se desata. En medio de la confusión, los tres valientes gatitos se ven obligados a separarse para sobrevivir y proteger a los indefensos. ¿Qué ruta deseas seguir primero?
+            </p>
+            <div class="choices-container" id="button-group">
+                <button onclick="gameRoute.startRoute('orilla')">Ruta de Misi: Canales de agua y jaulas de palomas</button>
+                <button onclick="gameRoute.startRoute('bosque')">Ruta de Luna: Bosque de cristal y perros salvajes</button>
+                <button onclick="gameRoute.startRoute('ruinas')">Ruta de Copito: Andamios altos y los cazadores</button>
             </div>
-        </div>
-
-        <div class="controls-container">
-            <button class="ctrl-btn" id="btn-left">◀</button>
-            <button class="ctrl-btn" id="btn-right">▶</button>
-            <button class="ctrl-btn" id="btn-jump">▲</button>
-            <button class="ctrl-btn" id="btn-duck">▼</button>
-        </div>
-
-        <div class="ad-banner">Anuncio Recompensas / Banner Inferior</div>
-
-        <div class="fixed-bottom">
-            <button class="btn" onclick="window.location.href='/'">Volver al Menú Principal</button>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const cinematicOverlay = document.getElementById('cinematic-overlay');
-        const cinematicTitle = document.getElementById('cinematic-title');
-        const cinematicText = document.getElementById('cinematic-text');
-        const cinematicBtn = document.getElementById('cinematic-btn');
-
-        let stopGame = false;
-        let pausedForCinematic = false;
-        let isChapterEnd = false;
-        let score = 0;
-        let worldX = 0;
-        let gameSpeed = 2.5;
-        let frameCount = 0;
-
-        const CW = canvas.width;
-        const CH = canvas.height;
-        const GROUND_Y = CH - 55; // Suelo un poco más alto
-
-        let cat = {
-            x: 60, // Gato un poco más a la izquierda
-            y: GROUND_Y,
-            width: 36,
-            height: 30, // Gato un bloque detallado
-            vx: 0,
-            dy: 0,
-            jumpForce: -10,
-            gravity: 0.55,
-            isGrounded: true,
-            isCrouched: false,
-            color: '#f97316' // Naranja
+        // Estado del juego para llevar el conteo de rescates
+        let gameState = {
+            rats: 0,
+            birds: 0
         };
 
-        let enemies = [];
-        let items = [];
+        const gameRoute = {
+            updateStats: function() {
+                document.getElementById('stat-rats').innerText = `🐭 Ratones rescatados: ${gameState.rats}`;
+                document.getElementById('stat-birds').innerText = `🐦 Palomas rescatadas: ${gameState.birds}`;
+            },
 
-        let keys = { left: false, right: false, jump: false, duck: false };
+            startRoute: function(route) {
+                const title = document.getElementById('story-title');
+                const text = document.getElementById('story-text');
+                const buttons = document.getElementById('button-group');
 
-        let audioCtx = null;
-        function playTone(freq1, freq2, duration, type, volume = 0.1) {
-            try {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                let osc = audioCtx.createOscillator();
-                let gain = audioCtx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq1, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(freq2, audioCtx.currentTime + duration);
-                gain.gain.setValueAtTime(volume, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + duration);
-            } catch(e) {}
-        }
+                if (route === 'orilla') {
+                    title.innerText = "Ruta de Misi: Los Canales Inundados";
+                    text.innerText = "Misi avanza nadando con destreza entre tuberías oscuras y agua contaminada. A lo lejos, atrapadas en una red colgada por los cazadores, un grupo de palomitas aletea asustadas. De pronto, al otro lado del canal, ve fugazmente a su hermano Luna corriendo sobre los tejados.";
+                    gameState.birds += 2;
+                    this.updateStats();
+                    buttons.innerHTML = `
+                        <button onclick="gameRoute.action('misi_cortar_red')">Liberar a las palomitas de la red</button>
+                        <button onclick="gameRoute.action('misi_ignorar')">Continuar rápido ignorando la trampa</button>
+                    `;
+                } else if (route === 'bosque') {
+                    title.innerText = "Ruta de Luna: El Bosque de Cristal";
+                    text.innerText = "Luna se oculta ágilmente entre formaciones de cristales luminosos. Los ladridos de los perros salvajes resuenan muy cerca. Bajo una roca metálica, unos pequeños ratones tiemblan de miedo sin poder escapar del agua que sube.";
+                    gameState.rats += 3;
+                    this.updateStats();
+                    buttons.innerHTML = `
+                        <button onclick="gameRoute.action('luna_salvar_ratones')">Desplazar la roca y salvar a los ratones</button>
+                        <button onclick="gameRoute.action('luna_huir')">Huir de inmediato de los perros salvajes</button>
+                    `;
+                } else if (route === 'ruinas') {
+                    title.innerText = "Ruta de Copito: La Zona de los Cazadores";
+                    text.innerText = "Copito trepa sigilosamente por los andamios metálicos. Abajo, los cazadores vigilan con linternas. En una jaula improvisada hay un ratoncito y una paloma compartiendo refugio de la inundación.";
+                    gameState.rats += 1;
+                    gameState.birds += 1;
+                    this.updateStats();
+                    buttons.innerHTML = `
+                        <button onclick="gameRoute.action('copito_desactivar')">Desactivar el cerrojo de la jaula</button>
+                        <button onclick="gameRoute.action('copito_subir')">Subir más alto para evitar al cazador</button>
+                    `;
+                }
+            },
 
-        function initGame() {
-            stopGame = false;
-            pausedForCinematic = false;
-            isChapterEnd = false;
-            score = 0;
-            worldX = 0;
-            frameCount = 0;
-            enemies = [];
-            items = [];
-            cinematicOverlay.style.display = 'none';
-            cat.x = 60;
-            cat.y = GROUND_Y;
-            cat.vx = 0;
-            cat.dy = 0;
-            cat.isGrounded = true;
-            cat.isCrouched = false;
-            loop();
-        }
+            action: function(choice) {
+                const title = document.getElementById('story-title');
+                const text = document.getElementById('story-text');
+                const buttons = document.getElementById('button-group');
 
-        // Gestión de Controles
-        window.addEventListener('keydown', e => {
-            if(e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
-            if(e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
-            if(e.code === 'ArrowUp' || e.code === 'Space' || e.code === 'KeyW') { keys.jump = true; triggerJump(); }
-            if(e.code === 'ArrowDown' || e.code === 'KeyS') keys.duck = true;
-        });
+                if (choice.includes('misi')) {
+                    title.innerText = "Cruce de Caminos: El Saludo a Distancia";
+                    text.innerText = "Misi logra cortar la cuerda con sus afiladas garras. Las palomitas vuelan a salvo hacia el cielo naranja. En ese instante, Misi cruza miradas con Copito, quien pasa velozmente por una cornisa superior persiguiendo una pista. ¡Sus caminos se cruzan de paso!";
+                    buttons.innerHTML = `
+                        <button onclick="gameRoute.finishDemo()">Continuar hacia el punto de reencuentro final</button>
+                    `;
+                } else if (choice.includes('luna')) {
+                    title.innerText = "Cruce de Caminos: Sombras en el Cristal";
+                    text.innerText = "A pesar de la tensión con los perros salvajes, Luna logra poner a salvo a los ratoncitos entre los cristales. Mientras huye hacia la zona alta, se cruza fugazmente con Misi, quien viene huyendo del agua. Intercambian un maullido rápido de aliento y siguen su marcha.";
+                    buttons.innerHTML = `
+                        <button onclick="gameRoute.finishDemo()">Continuar hacia el punto de reencuentro final</button>
+                    `;
+                } else if (choice.includes('copito')) {
+                    title.innerText = "Cruce de Caminos: Alturas Peligrosas";
+                    text.innerText = "Copito abre la jaula con inteligencia, liberando al ratón y a la paloma. Desde las alturas, divisa a Luna esquivando a los perros abajo en el bosque de cristal. ¡La manada sigue resistiendo unida a la distancia!";
+                    buttons.innerHTML = `
+                        <button onclick="gameRoute.finishDemo()">Continuar hacia el punto de reencuentro final</button>
+                    `;
+                }
+            },
 
-        window.addEventListener('keyup', e => {
-            if(e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
-            if(e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
-            if(e.code === 'ArrowDown' || e.code === 'KeyS') keys.duck = false;
-        });
+            finishDemo: function() {
+                const title = document.getElementById('story-title');
+                const text = document.getElementById('story-text');
+                const buttons = document.getElementById('button-group');
 
-        function bindTouch(id, keyName, isAction = false) {
-            const el = document.getElementById(id);
-            el.addEventListener('touchstart', e => {
-                e.preventDefault();
-                keys[keyName] = true;
-                if(isAction) triggerJump();
-            });
-            el.addEventListener('touchend', e => {
-                e.preventDefault();
-                if(!isAction) keys[keyName] = false;
-            });
-            el.addEventListener('mousedown', e => {
-                keys[keyName] = true;
-                if(isAction) triggerJump();
-            });
-            el.addEventListener('mouseup', e => {
-                if(!isAction) keys[keyName] = false;
-            });
-        }
-        bindTouch('btn-left', 'left');
-        bindTouch('btn-right', 'right');
-        bindTouch('btn-
+                title.innerText = "¡Progreso Guardado con Éxito!";
+                text.innerHTML = `Has completado esta primera fase de la aventura.<br><b>Resumen de rescates:</b> 🐭 ${gameState.rats} ratones y 🐦 ${gameState.birds} palomas salvadas. Los tres gatitos siguen adelante enfrentando el agua y los peligros en sus rutas separadas.`;
+                buttons.innerHTML = `
+                    <button onclick="location.reload()">Reiniciar Aventura</button>
+                `;
+            }
+        };
+    </script>
+</body>
+</html>
