@@ -40,12 +40,24 @@
         /* CABECERA DE EPISODIO */
         .header-ep {
             background: rgba(15, 23, 42, 0.9);
-            padding: 12px;
-            text-align: center;
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom: 1px solid #334155;
         }
-        .header-ep h3 { margin: 0; font-size: 14px; color: #38bdf8; letter-spacing: 1px; }
-        .header-ep h1 { margin: 5px 0 0; font-size: 18px; color: #f1f5f9; }
+        .header-titles h3 { margin: 0; font-size: 12px; color: #38bdf8; letter-spacing: 1px; }
+        .header-titles h1 { margin: 3px 0 0; font-size: 16px; color: #f1f5f9; }
+        
+        .btn-menu {
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+        }
 
         /* PANTALLA VISUAL / ESCENA */
         .scene-screen {
@@ -58,7 +70,6 @@
             overflow: hidden;
         }
 
-        /* AVATAR / ILUSTRACIÓN CENTRAL (VECTORIAL Y SEGURA) */
         .character-art {
             font-size: 85px;
             animation: float 3s ease-in-out infinite;
@@ -69,31 +80,31 @@
             50% { transform: translateY(-8px); }
         }
 
-        /* CAJA DE DIÁLOGO / HISTORIA (ESTILO NOVELA VISUAL) */
+        /* CAJA DE DIÁLOGO / HISTORIA */
         .story-box {
             background: rgba(15, 23, 42, 0.95);
             border-top: 2px solid #38bdf8;
-            padding: 15px;
-            min-height: 130px;
+            padding: 12px;
+            min-height: 120px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
         .story-text {
-            font-size: 13px;
-            line-height: 1.5;
+            font-size: 12px;
+            line-height: 1.4;
             color: #cbd5e1;
             font-family: 'Courier New', Courier, monospace;
-            height: 60px;
+            height: 55px;
             overflow-y: auto;
         }
 
-        /* BOTONES DE DECISIÓN / ACCIÓN */
+        /* BOTONES DE DECISIÓN */
         .choices-area {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            padding: 12px;
+            gap: 6px;
+            padding: 10px;
             background: #020617;
             border-top: 1px solid #1e293b;
         }
@@ -101,29 +112,63 @@
             background: linear-gradient(90deg, #1e40af 0%, #1d4ed8 100%);
             border: 1px solid #60a5fa;
             color: white;
-            padding: 12px;
+            padding: 10px;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 12px;
             text-align: center;
             cursor: pointer;
             font-family: 'Cinzel', serif, sans-serif;
-            transition: 0.2s;
         }
-        .btn-choice:active { background: #2563eb; transform: scale(0.98); }
+        .btn-choice:active { transform: scale(0.98); }
         .btn-ad {
             background: linear-gradient(90deg, #b45309 0%, #d97706 100%);
             border: 1px solid #fbbf24;
         }
+
+        /* PANEL DE SELECCIÓN DE CAPÍTULOS (MODAL) */
+        #episode-modal {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 6, 23, 0.95);
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        #episode-modal h2 { color: #38bdf8; font-size: 18px; text-align: center; margin-bottom: 15px; }
+        .ep-list-item {
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ep-list-item:active { background: #334155; }
     </style>
 </head>
 <body>
 
     <div id="app-container">
+        <!-- MODAL DE SELECCIÓN DE CAPÍTULOS -->
+        <div id="episode-modal">
+            <h2>🎬 Seleccionar Episodio</h2>
+            <div id="episodes-list"></div>
+            <button class="btn-choice" style="margin-top: 15px;" onclick="toggleModal(false)">✖️ Cerrar Menú</button>
+        </div>
+
         <!-- CABECERA -->
         <div class="header-ep">
-            <h3 id="ep-tag">EPISODIO 1: EL DESPERTAR</h3>
-            <h1 id="ep-title">Misi y el Refugio Interior</h1>
+            <div class="header-titles">
+                <h3 id="ep-tag">EPISODIO 1</h3>
+                <h1 id="ep-title">El Despertar</h1>
+            </div>
+            <button class="btn-menu" onclick="toggleModal(true)">📺 Capítulos</button>
         </div>
 
         <!-- ESCENA VISUAL -->
@@ -131,83 +176,104 @@
             <div id="char-icon" class="character-art">🐱</div>
         </div>
 
-        <!-- DIÁLOGO / NARRATIVA -->
+        <!-- DIÁLOGOS -->
         <div class="story-box">
             <div id="story-text" class="story-text">
-                La tormenta azota las afueras. Misi abre los ojos entre escombros metálicos; el peligro del Perro Mutante acecha cerca del perímetro. La resiliencia será su única salida.
+                Cargando historia...
             </div>
         </div>
 
-        <!-- OPCIONES Y MONETIZACIÓN (ANUNCIOS RECOMPENSADOS) -->
+        <!-- OPCIONES -->
         <div id="choices-container" class="choices-area">
-            <button class="btn-choice" onclick="makeChoice(1)">⚔️ Enfrentar al enemigo con garras</button>
-            <button class="btn-choice" onclick="makeChoice(2)">⚡ Usar agilidad para huir y buscar pistas</button>
-            <button class="btn-choice btn-ad" onclick="watchAdReward()">📺 Ver Anuncio (Desbloquear Episodio Especial)</button>
+            <!-- Los botones se generan dinámicamente -->
         </div>
     </div>
 
     <script>
-        // Estructura de la Miniserie Interactiva
-        let currentScene = 1;
-
-        const episodes = {
-            1: {
-                tag: "EPISODIO 1: EL DESPERTAR",
-                title: "Misi y el Refugio Interior",
+        const episodes = [
+            {
+                id: 1,
+                tag: "EPISODIO 1: TEMPORADA 1",
+                title: "Misi y el Refugio",
                 icon: "🐱",
-                text: "La tormenta azota las afueras. Misi abre los ojos entre escombros metálicos; el peligro del Perro Mutante acecha cerca del perímetro. La resiliencia será su única salida.",
+                text: "La tormenta azota las afueras. Misi abre los ojos entre escombros metálicos; el peligro del Perro Mutante acecha cerca del perímetro.",
                 c1: "⚔️ Enfrentar al enemigo con garras",
-                c2: "⚡ Usar agilidad para huir y buscar pistas"
+                c2: "⚡ Usar agilidad para huir y buscar pistas",
+                next: 2
             },
-            2: {
-                tag: "EPISODIO 2: LA ALDEA OCULTA",
+            {
+                id: 2,
+                tag: "EPISODIO 2: TEMPORADA 1",
                 title: "El Camino de Luna",
                 icon: "🐈‍⬛",
                 text: "Luna cruza la niebla espesa. Las sombras amenazan con atraparla, pero una luz misteriosa al fondo de las torres abandona el silencio.",
                 c1: "🔍 Investigar las ruinas de las torres",
-                c2: "🐾 Seguir el rastro del Gato Naranja"
+                c2: "🐾 Seguir el rastro del Gato Naranja",
+                next: 3
             },
-            3: {
-                tag: "EPISODIO 3: CRUCE DE DESTINOS",
-                title: "La Unión de las Sombras",
+            {
+                id: 3,
+                tag: "EPISODIO 3: TEMPORADA 1",
+                title: "Cruce de Destinos",
                 icon: "🐾",
                 text: "Los caminos convergen. Las pistas recolectadas revelan al verdadero responsable detrás de la amenaza mutante. Es hora de la batalla final.",
                 c1: "🔥 Preparar el ataque definitivo en equipo",
-                c2: "🛡️ Activar el escudo de resiliencia grupal"
+                c2: "🛡️ Activar el escudo de resiliencia grupal",
+                next: 1
             }
-        };
+        ];
 
-        function makeChoice(option) {
-            if (currentScene < 3) {
-                currentScene++;
-                loadEpisode(currentScene);
-            } else {
-                alert("¡Has completado el arco principal de la miniserie! Preparando el siguiente capítulo...");
-                currentScene = 1;
-                loadEpisode(currentScene);
-            }
-        }
+        let currentEpisodeId = parseInt(localStorage.getItem('cat_miniseries_ep')) || 1;
 
         function loadEpisode(id) {
-            let ep = episodes[id];
+            currentEpisodeId = id;
+            localStorage.setItem('cat_miniseries_ep', id);
+            
+            let ep = episodes.find(e => e.id === id);
             document.getElementById('ep-tag').innerText = ep.tag;
             document.getElementById('ep-title').innerText = ep.title;
             document.getElementById('char-icon').innerText = ep.icon;
             document.getElementById('story-text').innerText = ep.text;
             
-            // Actualizar botones de opción
             const container = document.getElementById('choices-container');
             container.innerHTML = `
-                <button class="btn-choice" onclick="makeChoice(1)">${ep.c1}</button>
-                <button class="btn-choice" onclick="makeChoice(2)">${ep.c2}</button>
-                <button class="btn-choice btn-ad" onclick="watchAdReward()">📺 Ver Anuncio (Desbloquear Recompensa)</button>
+                <button class="btn-choice" onclick="makeChoice(${ep.next})">${ep.c1}</button>
+                <button class="btn-choice" onclick="makeChoice(${ep.next})">${ep.c2}</button>
+                <button class="btn-choice btn-ad" onclick="watchAdReward()">📺 Ver Anuncio (+1 Pista)</button>
             `;
         }
 
-        function watchAdReward() {
-            // Simulación de integración de red de anuncios recompensados (AdMob / Monetización)
-            alert("[Simulación de Anuncio] Reproduciendo video publicitario de 15 segundos para monetización... \n\n¡Recompensa obtenida: +1 Pista Maestra desbloqueada!");
+        function makeChoice(nextId) {
+            loadEpisode(nextId);
         }
+
+        function toggleModal(show) {
+            let modal = document.getElementById('episode-modal');
+            modal.style.display = show ? 'flex' : 'none';
+            if(show) renderEpisodeList();
+        }
+
+        function renderEpisodeList() {
+            let list = document.getElementById('episodes-list');
+            list.innerHTML = '';
+            episodes.forEach(ep => {
+                let div = document.createElement('div');
+                div.className = 'ep-list-item';
+                div.innerHTML = `<span>Cap ${ep.id}: ${ep.title}</span> <span>▶</span>`;
+                div.onclick = () => {
+                    loadEpisode(ep.id);
+                    toggleModal(false);
+                };
+                list.appendChild(div);
+            });
+        }
+
+        function watchAdReward() {
+            alert("[Monetización] Reproduciendo anuncio recompensado... \n\n¡Felicidades! Has obtenido una recompensa para avanzar sin restricciones.");
+        }
+
+        // Inicializar al cargar
+        loadEpisode(currentEpisodeId);
     </script>
 </body>
 </html>
