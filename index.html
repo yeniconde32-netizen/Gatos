@@ -9,7 +9,7 @@
         body {
             background-color: #000;
             color: #fff;
-            font-family: 'Cinzel', serif; /* Fuente más estilo aventura/fantasía */
+            font-family: 'Cinzel', serif;
             margin: 0;
             padding: 0;
             display: flex;
@@ -18,16 +18,12 @@
             overflow: hidden;
             height: 100vh;
         }
-
-        /* EL CANVAS PRINCIPAL ES LA PANTALLA DE JUEGO TOTAL */
         #gameCanvas {
             width: 100%;
             height: 100%;
             display: block;
-            background: #1a1a1a; /* Color de fondo mientras carga la imagen */
+            background: #121620;
         }
-
-        /* MANTENEMOS EL LOG DE TEXTO PERO MÁS ELEGANTE Y SUPERPUESTO */
         #log-overlay {
             position: absolute;
             bottom: 20px;
@@ -35,7 +31,7 @@
             transform: translateX(-50%);
             width: 90%;
             max-width: 500px;
-            background: rgba(10, 15, 22, 0.7);
+            background: rgba(10, 15, 22, 0.85);
             border: 1px solid #1e3a8a;
             color: #60a5fa;
             padding: 10px;
@@ -43,23 +39,19 @@
             font-size: 11px;
             height: 60px;
             overflow-y: auto;
-            font-family: 'Courier New', Courier, monospace; /* Mantener la estética de log */
-            pointer-events: none; /* Permite hacer clic a través de él */
+            font-family: 'Courier New', Courier, monospace;
+            pointer-events: none;
             z-index: 10;
         }
-
-        /* Cargamos una fuente de fantasía (opcional, requiere internet) */
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap');
     </style>
 </head>
 <body>
 
-    <!-- EL ELEMENTO CANVAS DONDE SE DIBUJARÁ TODO -->
     <canvas id="gameCanvas"></canvas>
     
-    <!-- EL LOG DE TEXTO FLOTANTE -->
     <div id="log-overlay">
-        [Sistema] ¡Bienvenido a Gatos: Destinos Cruzados!
+        [Sistema] ¡Bienvenido a Gatos: Destinos Cruzados! Toca los botones en pantalla para moverte y atacar.
     </div>
 
     <script>
@@ -67,91 +59,100 @@
         const ctx = canvas.getContext('2d');
         const logEl = document.getElementById('log-overlay');
 
-        // --- CONFIGURACIÓN DE IMÁGENES Y ACTIVOS ---
-        // NOTA: Reemplaza estas rutas por tus propias imágenes (o usa las de ejemplo)
+        // Recursos con iconos y avatares web seguros
         const assets = {
             backgrounds: [
-                "https://images.unsplash.com/photo-1542227072-b5317436c971?q=80&w=800&h=600&auto=format&fit=crop", // Refugio Interior (Misi)
-                "https://images.unsplash.com/photo-1611532737174-0f395d1f23b0?q=80&w=800&h=600&auto=format&fit=crop"  // Aldea Niebla (Luna)
+                "https://images.unsplash.com/photo-1542227072-b5317436c971?q=80&w=800&h=600&auto=format&fit=crop", 
+                "https://images.unsplash.com/photo-1611532737174-0f395d1f23b0?q=80&w=800&h=600&auto=format&fit=crop"  
             ],
             players: [
-                "https://cdn-icons-png.flaticon.com/512/2199/2199744.png", // Misi (Icono Gato Naranja)
-                "https://cdn-icons-png.flaticon.com/512/3069/3069194.png"  // Luna (Icono Gato Negro)
+                "https://cdn-icons-png.flaticon.com/512/2199/2199744.png", 
+                "https://cdn-icons-png.flaticon.com/512/3069/3069194.png"  
             ],
             enemies: [
-                "https://cdn-icons-png.flaticon.com/512/2414/2414615.png", // Perro Mutante
-                "https://cdn-icons-png.flaticon.com/512/4316/4316271.png"  // Sombra Fantasmal
+                "https://cdn-icons-png.flaticon.com/512/2414/2414615.png", 
+                "https://cdn-icons-png.flaticon.com/512/4316/4316271.png"  
             ],
-            fx: "https://cdn-icons-png.flaticon.com/512/6676/6676047.png" // Icono de Espada (Ataque)
+            fx: "https://cdn-icons-png.flaticon.com/512/6676/6676047.png"
         };
 
-        // Precargar imágenes
         const imgObjs = { bgs: [], players: [], enemies: [], fx: null };
+        let assetsLoaded = false;
+
         function preloadAssets(callback) {
             let loaded = 0;
             const total = assets.backgrounds.length + assets.players.length + assets.enemies.length + 1;
             
-            const onLoad = () => { loaded++; if(loaded === total) callback(); };
+            const onLoad = () => { 
+                loaded++; 
+                if(loaded >= total) {
+                    assetsLoaded = true;
+                    callback();
+                }
+            };
             
-            assets.backgrounds.forEach(src => { let img = new Image(); img.onload = onLoad; img.src = src; imgObjs.bgs.push(img); });
-            assets.players.forEach(src => { let img = new Image(); img.onload = onLoad; img.src = src; imgObjs.players.push(img); });
-            assets.enemies.forEach(src => { let img = new Image(); img.onload = onLoad; img.src = src; imgObjs.enemies.push(img); });
-            imgObjs.fx = new Image(); imgObjs.fx.onload = onLoad; imgObjs.fx.src = assets.fx;
+            assets.backgrounds.forEach(src => { let img = new Image(); img.onload = onLoad; img.onerror = onLoad; img.src = src; imgObjs.bgs.push(img); });
+            assets.players.forEach(src => { let img = new Image(); img.onload = onLoad; img.onerror = onLoad; img.src = src; imgObjs.players.push(img); });
+            assets.enemies.forEach(src => { let img = new Image(); img.onload = onLoad; img.onerror = onLoad; img.src = src; imgObjs.enemies.push(img); });
+            imgObjs.fx = new Image(); imgObjs.fx.onload = onLoad; imgObjs.fx.onerror = onLoad; imgObjs.fx.src = assets.fx;
         }
 
-        // --- ESTADO DEL JUEGO ---
         let currentCampaign = 0;
         const campaigns = [
             { name: "Misi (Gato Naranja)", zone: "Refugio Interior", eName: "Perro Mutante", pHp: 100, eHp: 100, pMaxHp: 100, eMaxHp: 100 },
             { name: "Luna (Gata Blanca)", zone: "Aldea de la Niebla", eName: "Sombra Fantasmal", pHp: 100, eHp: 120, pMaxHp: 100, eMaxHp: 120 }
         ];
 
-        let playerPos = { x: 100, y: 350 };
-        let enemyPos = { x: 600, y: 350 };
+        let playerPos = { x: 80, y: 300 };
+        let enemyPos = { x: 300, y: 300 };
         let fxAnim = { active: false, x: 0, y: 0, timer: 0 };
 
-        // --- DIMENSIONES Y ESCALADO ---
-        let width, height, scaleFactor;
+        let width, height;
         function resizeCanvas() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
-            scaleFactor = Math.min(width / 800, height / 600); // Escalado base
-            playerPos.y = height * 0.6;
-            enemyPos.y = height * 0.6;
-            enemyPos.x = width * 0.75;
+            playerPos.y = height * 0.45;
+            enemyPos.y = height * 0.45;
+            enemyPos.x = width - 150;
         }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // --- DIBUJADO EN EL CANVAS ---
+        const dpadAreas = [];
+        const actionAreas = [];
+
         function drawGame() {
-            if (imgObjs.bgs.length < 2) return; // Esperar a cargar
+            ctx.clearRect(0, 0, width, height);
 
-            // 1. Fondo
-            ctx.drawImage(imgObjs.bgs[currentCampaign], 0, 0, width, height);
+            // 1. Fondo o color por defecto si carga
+            if (assetsLoaded && imgObjs.bgs[currentCampaign].complete) {
+                ctx.drawImage(imgObjs.bgs[currentCampaign], 0, 0, width, height);
+            } else {
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(0, 0, width, height);
+            }
 
-            // 2. Efecto de Vignette (bordes oscuros para estilo cinemático)
-            let gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width/1.5);
-            gradient.addColorStop(0, 'rgba(0,0,0,0)');
-            gradient.addColorStop(1, 'rgba(0,0,0,0.7)');
+            // Capa oscura cinemática
+            let gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width/1.2);
+            gradient.addColorStop(0, 'rgba(0,0,0,0.2)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0.85)');
             ctx.fillStyle = gradient;
-            ctx.fillRect(0,0,width,height);
+            ctx.fillRect(0, 0, width, height);
 
-            // 3. Personajes (Sprites)
-            let pImg = imgObjs.players[currentCampaign];
-            let eImg = imgObjs.enemies[currentCampaign];
-            let charSize = Math.min(width, height) * 0.2; // Tamaño relativo de los personajes
-            
-            ctx.drawImage(pImg, playerPos.x, playerPos.y, charSize, charSize);
-            ctx.drawImage(eImg, enemyPos.x, enemyPos.y, charSize, charSize);
+            // 2. Personajes
+            let charSize = Math.min(width, height) * 0.22;
+            if (assetsLoaded) {
+                ctx.drawImage(imgObjs.players[currentCampaign], playerPos.x, playerPos.y, charSize, charSize);
+                ctx.drawImage(imgObjs.enemies[currentCampaign], enemyPos.x, enemyPos.y, charSize, charSize);
+            }
 
-            // 4. HUD DE JUEGO (Barras de vida, Títulos, Botones dibujados)
+            // 3. HUD y Botones táctiles
             drawHUD(charSize);
 
-            // 5. Animación de Ataque (si está activa)
+            // 4. Animación de ataque
             if (fxAnim.active) {
-                ctx.globalAlpha = fxAnim.timer / 20; // Desvanecer
-                ctx.drawImage(imgObjs.fx, fxAnim.x, fxAnim.y, charSize/2, charSize/2);
+                ctx.globalAlpha = fxAnim.timer / 15;
+                if(imgObjs.fx) ctx.drawImage(imgObjs.fx, fxAnim.x, fxAnim.y, charSize/2, charSize/2);
                 ctx.globalAlpha = 1;
                 fxAnim.timer--;
                 if(fxAnim.timer <= 0) fxAnim.active = false;
@@ -160,52 +161,49 @@
             requestAnimationFrame(drawGame);
         }
 
-        function drawHUD(charSize) {
-            ctx.font = 'bold 20px Cinzel, serif';
-            ctx.fillStyle = '#fff';
+        function drawHUD(cs) {
             ctx.textAlign = 'center';
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 16px Cinzel, serif';
             
-            // Título Campaña
             let c = campaigns[currentCampaign];
-            ctx.fillText(c.name + " - " + c.zone, width/2, 50);
+            ctx.fillText(c.name + " (" + c.zone + ")", width / 2, 40);
 
-            // Barras de vida (Estilo estilizado)
-            drawHealthBar(50, 80, 200, 20, c.pHp, c.pMaxHp, "#0f0"); // Jugador
-            drawHealthBar(width - 250, 80, 200, 20, c.eHp, c.eMaxHp, "#f00"); // Enemigo
-            ctx.font = '12px Arial';
-            ctx.fillText("HP Gato", 150, 75);
-            ctx.fillText("HP Enemigo", width - 150, 75);
+            // Barras de vida
+            drawHealthBar(30, 60, 140, 14, c.pHp, c.pMaxHp, "#22c55e");
+            drawHealthBar(width - 170, 60, 140, 14, c.eHp, c.eMaxHp, "#ef4444");
+            ctx.font = '10px Courier New';
+            ctx.fillText("HP Gato", 100, 88);
+            ctx.fillText("HP Enemigo", width - 100, 88);
 
-            // Botones D-Pad (Dibujados en pantalla táctil)
-            drawDPad(charSize);
+            // D-Pad táctil inferior izquierdo
+            drawDPad(cs);
 
-            // Botones de Acción (Dibujados en pantalla táctil)
-            drawActionButtons(charSize);
+            // Botones de acción inferior derecho
+            drawActionButtons(cs);
         }
 
         function drawHealthBar(x, y, w, h, current, max, color) {
-            ctx.fillStyle = '#333';
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
             ctx.fillRect(x, y, w, h);
             ctx.fillStyle = color;
-            ctx.fillRect(x, y, (current / max) * w, h);
+            ctx.fillRect(x, y, Math.max(0, (current / max) * w), h);
             ctx.strokeStyle = '#fff';
             ctx.strokeRect(x, y, w, h);
         }
 
-        const dpadAreas = [];
         function drawDPad(cs) {
-            const btnSize = cs * 0.4;
-            const startX = cs * 0.5;
-            const startY = height - cs * 1.5;
-            const gap = btnSize + 10;
+            const btnSize = 55;
+            const startX = 30;
+            const startY = height - 190;
+            const gap = 60;
 
-            // D-Pad de 5 botones (Central es '🔄')
             const buttons = [
-                { dx: 0, dy: -1, icon: '▲', id: 'up' }, // ↑
-                { dx: -1, dy: 0, icon: '◀', id: 'left' }, // ←
-                { dx: 0, dy: 0, icon: '🔄', id: 'switch' }, // 🔄 (Centro)
-                { dx: 1, dy: 0, icon: '▶', id: 'right' }, // →
-                { dx: 0, dy: 1, icon: '▼', id: 'down' } // ↓
+                { dx: 1, dy: 0, icon: '▲', id: 'up' },
+                { dx: 0, dy: 1, icon: '◀', id: 'left' },
+                { dx: 1, dy: 1, icon: '🔄', id: 'switch' },
+                { dx: 2, dy: 1, icon: '▶', id: 'right' },
+                { dx: 1, dy: 2, icon: '▼', id: 'down' }
             ];
             
             dpadAreas.length = 0; 
@@ -213,33 +211,31 @@
                 let bx = startX + b.dx * gap;
                 let by = startY + b.dy * gap;
                 
-                // Dibujar botón
-                ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                ctx.fillStyle = 'rgba(30, 41, 59, 0.8)';
                 ctx.fillRect(bx, by, btnSize, btnSize);
-                ctx.strokeStyle = '#fff';
+                ctx.strokeStyle = '#38bdf8';
                 ctx.strokeRect(bx, by, btnSize, btnSize);
                 
-                // Icono
                 ctx.fillStyle = '#fff';
-                ctx.font = '20px Arial';
-                ctx.fillText(b.icon, bx + btnSize/2, by + btnSize/1.5);
+                ctx.font = '18px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(b.icon, bx + btnSize/2, by + btnSize/1.6);
                 
                 dpadAreas.push({ x1: bx, y1: by, x2: bx+btnSize, y2: by+btnSize, id: b.id });
             });
         }
 
-        const actionAreas = [];
         function drawActionButtons(cs) {
-            const btnWidth = cs * 1.2;
-            const btnHeight = cs * 0.5;
-            const startX = width - cs * 1.8;
-            const startY = height - cs * 1.5;
-            const gap = btnHeight + 15;
+            const btnWidth = 130;
+            const btnHeight = 42;
+            const startX = width - 150;
+            const startY = height - 180;
+            const gap = 50;
 
             const actions = [
-                { text: '⚔️ Atacar', color: 'rgba(255,0,0,0.5)', id: 'attack' },
-                { text: '⚡ Habilidad', color: 'rgba(0,162,255,0.5)', id: 'skill' },
-                { text: '🔍 Investigar', color: 'rgba(234,179,8,0.5)', id: 'search' }
+                { text: '⚔️ Atacar', color: 'rgba(239, 68, 68, 0.7)', id: 'attack' },
+                { text: '⚡ Habilidad', color: 'rgba(59, 130, 246, 0.7)', id: 'skill' },
+                { text: '🔍 Investigar', color: 'rgba(234, 179, 8, 0.7)', id: 'search' }
             ];
 
             actionAreas.length = 0;
@@ -247,35 +243,84 @@
                 let ax = startX;
                 let ay = startY + i * gap;
                 
-                // Dibujar botón
                 ctx.fillStyle = a.color;
                 ctx.fillRect(ax, ay, btnWidth, btnHeight);
                 ctx.strokeStyle = '#fff';
                 ctx.strokeRect(ax, ay, btnWidth, btnHeight);
                 
-                // Texto
                 ctx.fillStyle = '#fff';
-                ctx.font = '14px Cinzel, serif';
-                ctx.fillText(a.text, ax + btnWidth/2, ay + btnHeight/1.5);
+                ctx.font = '12px Cinzel, serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(a.text, ax + btnWidth/2, ay + btnHeight/1.6);
                 
                 actionAreas.push({ x1: ax, y1: ay, x2: ax+btnWidth, y2: ay+btnHeight, id: a.id });
             });
         }
 
-        // --- INTERACCIÓN TÁCTIL (Lógica de Juego) ---
-        function getClickCoords(e) {
-            const rect = canvas.getBoundingClientRect();
-            return {
-                x: (e.touches ? e.touches[0].clientX : e.clientX) - rect.left,
-                y: (e.touches ? e.touches[0].clientY : e.clientY) - rect.top
-            };
+        function log(msg) {
+            logEl.innerHTML += `<br>` + msg;
+            logEl.scrollTop = logEl.scrollHeight;
         }
 
         function handleInput(id) {
-            if (id === 'switch') { switchCampaign(); return; }
+            let c = campaigns[currentCampaign];
+            if (id === 'switch') {
+                currentCampaign = (currentCampaign + 1) % campaigns.length;
+                let nc = campaigns[currentCampaign];
+                log(`=== CAMPAÑA: ${nc.name} (${nc.zone}) ===`);
+                return;
+            }
 
-            let moveSpeed = 30;
-            let moved = false;
-            if(id === 'up') { playerPos.y -= moveSpeed; moved = true; }
-            if(id === 'down') { playerPos.y += moveSpeed; moved = true; }
-            if(id
+            let step = 25;
+            if (id === 'up') playerPos.y = Math.max(100, playerPos.y - step);
+            if (id === 'down') playerPos.y = Math.min(height - 220, playerPos.y + step);
+            if (id === 'left') playerPos.x = Math.max(20, playerPos.x - step);
+            if (id === 'right') playerPos.x = Math.min(width - 120, playerPos.x + step);
+
+            if (id === 'attack') {
+                fxAnim = { active: true, x: enemyPos.x, y: enemyPos.y, timer: 15 };
+                c.eHp = Math.max(0, c.eHp - 25);
+                log(`[Ataque] ¡Golpe crítico a ${c.eName}! Vida enemiga: ${c.eHp}/${c.eMaxHp}`);
+                if (c.eHp === 0) log(`🎉 ¡Zona despejada! El enemigo ha caído.`);
+            }
+
+            if (id === 'skill') {
+                log(`[Habilidad] ¡${c.name} activa su destreza de resiliencia!`);
+            }
+
+            if (id === 'search') {
+                log(`[Pista] Has descubierto una pista clave oculta en este sector.`);
+            }
+        }
+
+        // Control táctil para los botones dibujados
+        canvas.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const tx = touch.clientX - rect.left;
+            const ty = touch.clientY - rect.top;
+
+            // Verificar D-Pad
+            for (let b of dpadAreas) {
+                if (tx >= b.x1 && tx <= b.x2 && ty >= b.y1 && ty <= b.y2) {
+                    handleInput(b.id);
+                    return;
+                }
+            }
+
+            // Verificar Botones de Acción
+            for (let a of actionAreas) {
+                if (tx >= a.x1 && tx <= a.x2 && ty >= a.y1 && ty <= a.y2) {
+                    handleInput(a.id);
+                    return;
+                }
+            }
+        }, { passive: false });
+
+        preloadAssets(() => {
+            drawGame();
+        });
+    </script>
+</body>
+</html>
