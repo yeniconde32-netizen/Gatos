@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gatos: Destinos Cruzados - Arte Real</title>
+    <title>Gatos: Destinos Cruzados - Aventura Completa</title>
     <style>
         body, html {
             margin: 0;
@@ -11,7 +11,7 @@
             height: 100%;
             overflow: hidden;
             font-family: 'Courier New', Courier, monospace;
-            background-color: #0b070c;
+            background-color: #050308;
         }
 
         #game-container {
@@ -22,52 +22,47 @@
             position: relative;
         }
 
-        /* Escenario superior con una ilustración de fondo artística y profesional */
+        /* Contenedor del escenario con fondos ilustrados dinámicos según el personaje */
         #scene-container {
             flex: 1;
             width: 100%;
             position: relative;
-            /* Usamos una ilustración de fondo épica y detallada de estilo fantástico/gótico */
-            background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1000&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
             overflow: hidden;
+            transition: background-image 0.5s ease-in-out;
         }
 
-        /* Capa oscura semitransparente para que el gato y los controlesresalten perfectamente */
+        /* Capa oscura atmosférica */
         #scene-container::after {
             content: '';
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 5, 15, 0.45);
+            background: rgba(10, 5, 15, 0.5);
             pointer-events: none;
         }
 
-        /* Lienzo interactivo donde se mueve el gato detallado */
         #gameCanvas {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: 2;
             pointer-events: none;
         }
 
-        /* Controles táctiles flotantes */
+        /* Controles Táctiles de Movimiento (Izquierda) */
         .touch-controls {
             position: absolute;
             top: 15px;
             left: 15px;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
             z-index: 10;
         }
 
         .dpad-row {
             display: flex;
-            gap: 5px;
+            gap: 4px;
             justify-content: center;
         }
 
@@ -75,15 +70,15 @@
             background: rgba(80, 20, 30, 0.85);
             border: 2px solid #d4af37;
             color: #fff;
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 0 12px rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
         }
 
         .control-btn:active {
@@ -91,19 +86,49 @@
             color: #000;
         }
 
-        /* Panel inferior con las ideas y opciones de la narrativa */
+        /* Botones de Acción, Habilidades y Velocidad (Derecha superior) */
+        .action-panel-hud {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .action-hud-btn {
+            background: rgba(139, 0, 0, 0.8);
+            border: 2px solid #ff3333;
+            color: #fff;
+            padding: 8px 12px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11px;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-hud-btn:active {
+            background: #ff0000;
+        }
+
+        /* Panel Inferior: Historias, Estadísticas y Opciones */
         .ui-panel {
             background: rgba(16, 12, 18, 0.98);
             border-top: 3px solid #d4af37;
             color: #e2d9c5;
-            padding: 15px 20px;
+            padding: 12px 18px;
             box-sizing: border-box;
             width: 100%;
             height: 46vh;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             box-shadow: 0 -10px 30px rgba(0,0,0,0.95);
             z-index: 5;
         }
@@ -111,32 +136,33 @@
         #story-title {
             color: #f3d56d;
             margin: 0;
-            font-size: 15px;
+            font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 2px;
             text-shadow: 0 0 6px rgba(243, 213, 109, 0.5);
         }
 
         #story-text {
-            font-size: 13px;
-            line-height: 1.4;
+            font-size: 12px;
+            line-height: 1.35;
             margin: 0;
             color: #c8bda9;
         }
 
         .stats-box {
             display: flex;
-            gap: 15px;
-            font-size: 11px;
+            gap: 12px;
+            font-size: 10px;
             color: #f3d56d;
             border-bottom: 1px solid #3d2b1f;
             padding-bottom: 4px;
+            flex-wrap: wrap;
         }
 
         .choices-container {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
             margin-top: auto;
         }
 
@@ -144,9 +170,9 @@
             background: rgba(60, 25, 35, 0.6);
             border: 1px solid #b8973e;
             color: #f1e4c3;
-            padding: 10px 14px;
+            padding: 8px 12px;
             font-family: 'Courier New', Courier, monospace;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
             transition: all 0.3s ease;
             border-radius: 2px;
@@ -157,19 +183,18 @@
             background: #7a2836;
             color: #ffffff;
             border-color: #ffd700;
-            box-shadow: 0 0 12px rgba(212, 175, 55, 0.7);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.7);
         }
     </style>
 </head>
 <body>
 
     <div id="game-container">
-        <!-- Contenedor con la ilustración artística de fondo -->
-        <div id="scene-container">
-            <!-- Lienzo para dibujar los gatos detallados -->
+        <!-- Escenario con fondos diferentes por personaje -->
+        <div id="scene-container" style="background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1000&auto=format&fit=crop');">
             <canvas id="gameCanvas"></canvas>
 
-            <!-- Controles Táctiles -->
+            <!-- Controles Táctiles de Movimiento -->
             <div class="touch-controls">
                 <div class="dpad-row">
                     <button class="control-btn" onclick="game.move('UP')">⬆️</button>
@@ -182,23 +207,31 @@
                     <button class="control-btn" onclick="game.move('DOWN')">⬇️</button>
                 </div>
             </div>
+
+            <!-- Botones de Acción (Ataque, Velocidad, Habilidad) -->
+            <div class="action-panel-hud">
+                <button class="action-hud-btn" onclick="game.action('attack')">⚔️ Atacar</button>
+                <button class="action-hud-btn" onclick="game.action('speed')">⚡ Velocidad</button>
+                <button class="action-hud-btn" onclick="game.action('skill')">✨ Habilidad</button>
+            </div>
         </div>
 
-        <!-- Panel Inferior: Ideas, Estado y Opciones -->
+        <!-- Panel Inferior -->
         <div class="ui-panel">
             <div class="stats-box">
                 <span id="stat-rats">🐭 Ratones: 0</span>
                 <span id="stat-birds">🐦 Palomas: 0</span>
-                <span id="stat-status"> estado: En las Puertas del Castillo</span>
+                <span id="stat-ally">🤝 Guía: Ninguno</span>
+                <span id="stat-protect">🛡️ A proteger: Ninguno</span>
             </div>
-            <h3 id="story-title">El Reino Olvidado: Destinos Cruzados</h3>
+            <h3 id="story-title">Gatos: Destinos Cruzados</h3>
             <p id="story-text">
-                Frente al imponente escenario ilustrado, los felinos buscan una salida. Selecciona un personaje para guiarlo por el reino:
+                Selecciona la campaña de tu felino favorito. Cada uno tiene su propio escenario, monstruos enemigos, aliados que guían y personajes vulnerables que debes proteger:
             </p>
             <div class="choices-container" id="button-group">
-                <button class="action-button" onclick="game.selectCat('misi', 'Misi (El Gato Naranja)', '#e67e22')">🐱 Seleccionar a Misi (Ruta del Foso)</button>
-                <button class="action-button" onclick="game.selectCat('luna', 'Luna (La Gata Blanca)', '#f3f4f6')">🐈‍⬛ Seleccionar a Luna (Ruta de las Torres)</button>
-                <button class="action-button" onclick="game.selectCat('copito', 'Copito (El Gato Gris)', '#9ca3af')">🐈 Seleccionar a Copito (Ruta de los Arcos)</button>
+                <button class="action-button" onclick="game.selectCat('misi')">🐱 Campaña de Misi (Canales Industriales)</button>
+                <button class="action-button" onclick="game.selectCat('luna')">🐈‍⬛ Campaña de Luna (Bosque Encantado)</button>
+                <button class="action-button" onclick="game.selectCat('copito')">🐈 Campaña de Copito (Andamios Urbanos)</button>
             </div>
         </div>
     </div>
@@ -215,51 +248,72 @@
         resizeCanvas();
 
         let player = {
-            x: 100,
+            x: 80,
             y: canvas.height - 70,
             name: 'Misi',
-            color: '#e67e22'
+            color: '#e67e22',
+            speedMultiplier: 1
         };
 
-        let gameState = { rats: 0, birds: 0 };
+        let currentCat = 'none';
+        let enemy = { x: canvas.width - 120, y: canvas.height - 70, name: 'Perro Mutante', color: '#8b0000', active: false };
+        let ally = { x: 180, y: canvas.height - 70, name: 'Búho Sabio', color: '#38bdf8', active: false };
+        let civilian = { x: canvas.width - 220, y: canvas.height - 70, name: 'Cachorro Perdido', color: '#facc15', active: false };
+
+        const backgrounds = {
+            misi: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1000&auto=format&fit=crop", // Canales / Industrial oscuro
+            luna: "https://images.unsplash.com/photo-1511497584788-876761192569?q=80&w=1000&auto=format&fit=crop", // Bosque nocturno
+            copito: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop" // Estructuras / Ciudad
+        };
 
         const game = {
-            selectCat: function(route, name, color) {
-                player.name = name;
-                player.color = color;
-                player.x = 100;
-                player.y = canvas.height - 70;
-
+            selectCat: function(catKey) {
+                currentCat = catKey;
+                const sceneContainer = document.getElementById('scene-container');
                 const title = document.getElementById('story-title');
                 const text = document.getElementById('story-text');
                 const buttons = document.getElementById('button-group');
 
-                if (route === 'misi') {
-                    title.innerText = "Ruta de Misi: El Foso del Castillo";
-                    text.innerText = "Misi explora los cimientos oscuros sobre el arte ilustrado. ¡Usa las flechas para moverlo!";
-                    gameState.rats += 1;
-                } else if (route === 'luna') {
-                    title.innerText = "Ruta de Luna: Las Torres Góticas";
-                    text.innerText = "Luna avanza hacia la torre alta. ¡Usa los controles para guiarla!";
-                    gameState.birds += 2;
-                } else if (route === 'copito') {
-                    title.innerText = "Ruta de Copito: Los Balcones";
-                    text.innerText = "Copito escala los muros de piedra. ¡Muévelo con los botones táctiles!";
-                    gameState.rats += 1;
-                    gameState.birds += 1;
+                sceneContainer.style.backgroundImage = `url('${backgrounds[catKey]}')`;
+
+                if (catKey === 'misi') {
+                    player.name = 'Misi';
+                    player.color = '#e67e22';
+                    title.innerText = "Ruta de Misi: Canales Inundados";
+                    text.innerText = "Misi avanza junto al muro industrial. ¡Un Perro Mutante acecha en el agua turbia! Sigue al Gato Viejo (guía) y protege al Cachorro Perdido.";
+                    enemy.name = 'Perro Mutante'; enemy.color = '#8b0000'; enemy.active = true;
+                    ally.name = 'Gato Viejo'; ally.active = true;
+                    civilian.name = 'Cachorro Perdido'; civilian.active = true;
+                } else if (catKey === 'luna') {
+                    player.name = 'Luna';
+                    player.color = '#f3f4f6';
+                    title.innerText = "Ruta de Luna: El Bosque Oscuro";
+                    text.innerText = "Luna camina bajo la niebla tóxica. ¡Una Sombra Fantasmal ataca desde los árboles! El Cuervo Místico te guía para proteger a la Paloma Herida.";
+                    enemy.name = 'Sombra Fantasmal'; enemy.color = '#4c1d95'; enemy.active = true;
+                    ally.name = 'Cuervo Místico'; ally.active = true;
+                    civilian.name = 'Paloma Herida'; civilian.active = true;
+                } else if (catKey === 'copito') {
+                    player.name = 'Copito';
+                    player.color = '#9ca3af';
+                    title.innerText = "Ruta de Copito: Andamios de Acero";
+                    text.innerText = "Copito escala la gran torre. ¡Cuidado con el Cuervo Cazador! El Halcón Guía te ayuda a proteger al Erizo Bebé.";
+                    enemy.name = 'Cuervo Cazador'; enemy.color = '#1f2937'; enemy.active = true;
+                    ally.name = 'Halcón Guía'; ally.active = true;
+                    civilian.name = 'Erizo Bebé'; civilian.active = true;
                 }
 
-                document.getElementById('stat-rats').innerText = `🐭 Ratones: ${gameState.rats}`;
-                document.getElementById('stat-birds').innerText = `🐦 Palomas: ${gameState.birds}`;
-                document.getElementById('stat-status').innerText = ` estado: Explorando el Castillo`;
+                document.getElementById('stat-rats').innerText = `🐭 Ratones: 2`;
+                document.getElementById('stat-birds').innerText = `🐦 Palomas: 1`;
+                document.getElementById('stat-ally').innerText = `🤝 Guía: ${ally.name}`;
+                document.getElementById('stat-protect').innerText = `🛡️ A proteger: ${civilian.name}`;
 
                 buttons.innerHTML = `
-                    <button class="action-button" onclick="game.crossDestinies()">⚡ Unir Destinos con los Hermanos</button>
+                    <button class="action-button" onclick="game.triggerMission()">⚔️ Iniciar Combate y Misión de Rescate</button>
                 `;
             },
 
             move: function(dir) {
-                const speed = 25;
+                const speed = 25 * player.speedMultiplier;
                 if (dir === 'LEFT') player.x -= speed;
                 if (dir === 'RIGHT') player.x += speed;
                 if (dir === 'UP') player.y -= speed;
@@ -271,76 +325,86 @@
                 if (player.y > canvas.height - 30) player.y = canvas.height - 30;
             },
 
-            crossDestinies: function() {
+            action: function(type) {
+                const text = document.getElementById('story-text');
+                if (type === 'attack') {
+                    text.innerText = `¡${player.name} ataca con garras afiladas al enemigo ${enemy.name}! Daño efectivo infligido.`;
+                } else if (type === 'speed') {
+                    player.speedMultiplier = 1.8;
+                    text.innerText = `¡${player.name} activó Velocidad Felina! Movimiento ultra rápido por el escenario.`;
+                    setTimeout(() => { player.speedMultiplier = 1; }, 3000);
+                } else if (type === 'skill') {
+                    text.innerText = `¡Habilidad Especial activada! ${ally.name} distrae al monstruo y protege a ${civilian.name}.`;
+                }
+            },
+
+            triggerMission: function() {
                 const title = document.getElementById('story-title');
                 const text = document.getElementById('story-text');
-                const buttons = document.getElementById('button-group');
-
-                title.innerText = "¡Convergencia en el Castillo!";
-                text.innerText = "¡Los tres felinos se reúnen en la gran sala del trono, descifrando el enigma del reino oscuro!";
-
-                buttons.innerHTML = `
-                    <button class="action-button" onclick="location.reload()">🔄 Reiniciar Aventura</button>
-                `;
+                title.innerText = "¡Combate en Curso!";
+                text.innerText = `¡Usa los botones de Ataque, Velocidad y Habilidad para derrotar a ${enemy.name} y salvar a ${civilian.name}!`;
             }
         };
 
-        // Función para dibujar el gato con diseño detallado
-        function drawDetailedCat(x, y, color, name) {
+        // Dibujar personajes, enemigos, guías y civiles en el canvas
+        function drawEntities() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Suelo del escenario
+            let groundY = canvas.height - 35;
+            ctx.fillStyle = 'rgba(15, 10, 8, 0.85)';
+            ctx.fillRect(0, groundY, canvas.width, 35);
+
+            if (currentCat !== 'none') {
+                // Dibujar Enemigo / Monstruo
+                ctx.fillStyle = enemy.color;
+                ctx.fillRect(enemy.x - 15, enemy.y - 25, 30, 25);
+                ctx.fillStyle = '#fff';
+                ctx.font = '10px Courier New';
+                ctx.fillText(enemy.name, enemy.x - 30, enemy.y - 32);
+
+                // Dibujar Aliado Guía
+                ctx.fillStyle = ally.color;
+                ctx.beginPath();
+                ctx.arc(ally.x, ally.y - 12, 12, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.fillText(ally.name, ally.x - 25, ally.y - 28);
+
+                // Dibujar Personaje a Proteger
+                ctx.fillStyle = civilian.color;
+                ctx.fillRect(civilian.x - 10, civilian.y - 18, 20, 18);
+                ctx.fillStyle = '#fff';
+                ctx.fillText(civilian.name, civilian.x - 30, civilian.y - 25);
+            }
+
+            // Dibujar al Gato Protagonista Detallado
             ctx.save();
-            ctx.translate(x, y);
-
-            // Cuerpo del gato
-            ctx.fillStyle = color;
+            ctx.translate(player.x, player.y);
+            ctx.fillStyle = player.color;
             ctx.beginPath();
-            ctx.ellipse(0, 0, 22, 14, 0, 0, Math.PI * 2);
+            ctx.ellipse(0, 0, 20, 13, 0, 0, Math.PI * 2);
             ctx.fill();
-
-            // Cabeza del gato
+            // Cabeza
             ctx.beginPath();
-            ctx.arc(14, -12, 12, 0, Math.PI * 2);
+            ctx.arc(12, -10, 11, 0, Math.PI * 2);
             ctx.fill();
-
-            // Orejas puntiagudas
+            // Orejas
             ctx.beginPath();
-            ctx.moveTo(7, -20);
-            ctx.lineTo(11, -32);
-            ctx.lineTo(17, -21);
-            ctx.moveTo(15, -20);
-            ctx.lineTo(21, -30);
-            ctx.lineTo(23, -19);
-            ctx.fillStyle = color;
+            ctx.moveTo(6, -17); ctx.lineTo(10, -28); ctx.lineTo(15, -18);
+            ctx.fillStyle = player.color;
             ctx.fill();
-
-            // Cola arqueada
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 5;
-            ctx.lineCap = 'round';
-            ctx.beginPath();
-            ctx.moveTo(-18, -2);
-            ctx.quadraticCurveTo(-32, -18, -25, -28);
-            ctx.stroke();
-
-            // Ojos brillantes
-            ctx.fillStyle = '#00ffcc';
-            ctx.fillRect(16, -15, 3, 3);
-
-            // Nombre flotante
+            // Nombre
             ctx.fillStyle = '#fef3c7';
             ctx.font = '11px Courier New';
             ctx.textAlign = 'center';
-            ctx.fillText(name, 0, -42);
-
+            ctx.fillText(player.name, 0, -38);
             ctx.restore();
+
+            requestAnimationFrame(drawEntities);
         }
 
-        function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawDetailedCat(player.x, player.y, player.color, player.name);
-            requestAnimationFrame(gameLoop);
-        }
-
-        gameLoop();
+        drawEntities();
     </script>
 </body>
 </html>
