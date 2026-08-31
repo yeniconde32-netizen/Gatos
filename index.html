@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gatos: Destinos Cruzados y Rescate Estelar</title>
+    <title>Gatos: Destinos en la Oscuridad (Berserk Style)</title>
     <style>
         body, html {
             margin: 0;
@@ -11,13 +11,12 @@
             height: 100%;
             overflow: hidden;
             font-family: 'Courier New', Courier, monospace;
-            background-color: #0b0d14;
+            background-color: #050505;
         }
 
         #game-screen {
             width: 100vw;
             height: 100vh;
-            /* IMAGEN DE PRUEBA EN LÍNEA TEMPORAL */
             background-image: url('https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=1000&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
@@ -39,14 +38,15 @@
             box-sizing: border-box;
         }
 
+        /* D-Pad Estilo Berserk (Rojo sangre y oscuro) */
         .virtual-dpad {
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(20, 0, 0, 0.6);
             padding: 8px;
             border-radius: 50%;
-            border: 1px solid rgba(0, 255, 255, 0.3);
+            border: 1px solid rgba(180, 0, 0, 0.5);
             backdrop-filter: blur(2px);
         }
 
@@ -56,8 +56,8 @@
         }
 
         .control-btn {
-            background: rgba(255, 140, 0, 0.3);
-            border: 2px solid #ff8c00;
+            background: rgba(139, 0, 0, 0.4);
+            border: 2px solid #b22222;
             color: #fff;
             width: 45px;
             height: 45px;
@@ -67,17 +67,18 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 0 8px rgba(255, 140, 0, 0.5);
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
         }
 
         .control-btn:active {
-            background: #ff8c00;
+            background: #ff0000;
         }
 
+        /* Panel de interfaz inferior con estética gótica/oscura */
         .ui-panel {
-            background: rgba(11, 13, 20, 0.88);
-            border-top: 2px solid #00ffff;
-            color: #e0e0e0;
+            background: rgba(10, 10, 12, 0.95);
+            border-top: 2px solid #8b0000;
+            color: #d1d1d1;
             padding: 15px 20px;
             box-sizing: border-box;
             width: 100%;
@@ -86,23 +87,24 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.9);
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.95);
             backdrop-filter: blur(4px);
         }
 
         #story-title {
-            color: #00ffff;
+            color: #ff3333;
             margin: 0;
             font-size: 16px;
             text-transform: uppercase;
             letter-spacing: 2px;
+            text-shadow: 0 0 8px rgba(255, 0, 0, 0.6);
         }
 
         #story-text {
             font-size: 14px;
             line-height: 1.4;
             margin: 0;
-            text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+            color: #cccccc;
         }
 
         .stats-box {
@@ -110,7 +112,7 @@
             gap: 15px;
             font-size: 12px;
             color: #ffb347;
-            border-bottom: 1px solid #1f4068;
+            border-bottom: 1px solid #330000;
             padding-bottom: 4px;
         }
 
@@ -121,30 +123,31 @@
         }
 
         .action-button {
-            background: rgba(255, 140, 0, 0.15);
-            border: 1px solid #ff8c00;
-            color: #ffb347;
+            background: rgba(139, 0, 0, 0.2);
+            border: 1px solid #b22222;
+            color: #ff9999;
             padding: 10px 14px;
             font-family: 'Courier New', Courier, monospace;
             font-size: 13px;
             cursor: pointer;
             transition: all 0.3s ease;
-            border-radius: 4px;
+            border-radius: 2px;
             text-align: left;
         }
 
         .action-button:hover {
-            background: #ff8c00;
+            background: #8b0000;
             color: #ffffff;
-            box-shadow: 0 0 15px rgba(255, 140, 0, 0.8);
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
         }
     </style>
 </head>
 <body>
 
     <div id="game-screen">
+        <!-- CONTROLES TÁCTILES FLOTANTES -->
         <div class="visual-viewport">
-            <div class="virtual-dpad">
+            <div class="virtual-dpad" title="Moverse por el páramo">
                 <button class="control-btn" onclick="gameRoute.handleControl('UP')">⬆️</button>
                 <div class="dpad-row">
                     <button class="control-btn" onclick="gameRoute.handleControl('LEFT')">⬅️</button>
@@ -153,10 +156,11 @@
                 <button class="control-btn" onclick="gameRoute.handleControl('DOWN')">⬇️</button>
             </div>
             <div>
-                <button class="control-btn" onclick="gameRoute.handleControl('ACTION')" style="border-color: #00ffff; color: #00ffff; background: rgba(0,255,255,0.2);">🅰️</button>
+                <button class="control-btn" onclick="gameRoute.handleControl('ACTION')" style="border-color: #ff3333; color: #ff3333; background: rgba(255,0,0,0.2);" title="Acción felina">🐾</button>
             </div>
         </div>
 
+        <!-- PANEL DE NARRATIVA ORIGINAL DE LOS GATOS -->
         <div class="ui-panel">
             <div class="stats-box">
                 <span id="stat-rats">🐭 Ratones: 0</span>
@@ -164,7 +168,7 @@
             </div>
             <h3 id="story-title">Capítulo 1: La Gran Inundación</h3>
             <p id="story-text">
-                Una marea de agua tóxica comienza a cubrir las tierras bajas. Los perros salvajes acechan. Usa los botones táctiles o elige una ruta abajo para avanzar.
+                Una marea de agua tóxica comienza a cubrir las tierras bajas bajo un cielo carmesí. Los perros salvajes acechan en la penumbra. Usa los controles o elige una ruta para avanzar.
             </p>
             <div class="choices-container" id="button-group">
                 <button class="action-button" onclick="gameRoute.startRoute('orilla')">🐱 Ruta de Misi: Canales de agua y jaulas</button>
@@ -185,11 +189,11 @@
 
             handleControl: function(direction) {
                 const text = document.getElementById('story-text');
-                if (direction === 'UP') text.innerText = "¡El gatito trepa a la cornisa alta con agilidad!";
-                if (direction === 'DOWN') text.innerText = "¡El gatito se agacha sigiloso entre las sombras!";
-                if (direction === 'LEFT') text.innerText = "¡Mirando hacia el sector oeste del terreno!";
-                if (direction === 'RIGHT') text.innerText = "¡Avanzando hacia el este explorando el camino!";
-                if (direction === 'ACTION') text.innerText = "✨ ¡Acción ejecutada! El entorno reacciona a tu presencia.";
+                if (direction === 'UP') text.innerText = "¡El valiente felino trepa con agilidad esquivando las sombras del páramo!";
+                if (direction === 'DOWN') text.innerText = "¡El gatito se agacha sigiloso, fundiéndose con la oscuridad del terreno!";
+                if (direction === 'LEFT') text.innerText = "¡Oteando el horizonte carmesí hacia el oeste en busca de aliados!";
+                if (direction === 'RIGHT') text.innerText = "¡Avanzando con cautela por el sendero rocoso y hostil!";
+                if (direction === 'ACTION') text.innerText = "🐾 ¡Zarpazo felino! Las tinieblas ceden temporalmente ante tu resistencia.";
             },
 
             startRoute: function(route) {
@@ -199,29 +203,35 @@
 
                 if (route === 'orilla') {
                     title.innerText = "Ruta de Misi: Canales Inundados";
-                    text.innerText = "Misi avanza por los tubos. Ve palomas atrapadas en una red.";
+                    text.innerText = "Misi avanza por los oscuros tubos de drenaje. Ve palomas atrapadas bajo una red entre las aguas turbias.";
                     gameState.birds += 2;
                     this.updateStats();
-                    buttons.innerHTML = `<button class="action-button" onclick="gameRoute.action()">⚡ Liberar a las palomitas</button>`;
+                    buttons.innerHTML = `
+                        <button class="action-button" onclick="gameRoute.action()">⚡ Liberar a las palomitas</button>
+                    `;
                 } else if (route === 'bosque') {
                     title.innerText = "Ruta de Luna: Bosque de Cristal";
-                    text.innerText = "Luna esquiva perros salvajes cerca de los cristales luminosos.";
+                    text.innerText = "Luna esquiva a los perros salvajes que aúllan cerca de los cristales luminosos en la niebla.";
                     gameState.rats += 3;
                     this.updateStats();
-                    buttons.innerHTML = `<button class="action-button" onclick="gameRoute.action()">⚡ Salvar a los ratoncitos</button>`;
+                    buttons.innerHTML = `
+                        <button class="action-button" onclick="gameRoute.action()">⚡ Salvar a los ratoncitos</button>
+                    `;
                 } else if (route === 'ruinas') {
                     title.innerText = "Ruta de Copito: Andamios";
-                    text.innerText = "Copito vigila a los cazadores desde arriba.";
+                    text.innerText = "Copito vigila desde las alturas a los cazadores apostados entre los andamios metálicos.";
                     gameState.rats += 1;
                     gameState.birds += 1;
                     this.updateStats();
-                    buttons.innerHTML = `<button class="action-button" onclick="gameRoute.action()">⚡ Abrir la jaula secreta</button>`;
+                    buttons.innerHTML = `
+                        <button class="action-button" onclick="gameRoute.action()">⚡ Abrir la jaula secreta</button>
+                    `;
                 }
             },
 
             action: function() {
                 document.getElementById('story-title').innerText = "¡Cruce de Caminos!";
-                document.getElementById('story-text').innerText = "¡Has rescatado a los animales y te has cruzado de paso con tus hermanos!";
+                document.getElementById('story-text').innerText = "¡Has rescatado a los animales de la tormenta y te has reunido de paso con tus hermanos en el camino!";
                 document.getElementById('button-group').innerHTML = `<button class="action-button" onclick="location.reload()">🔄 Reiniciar Aventura</button>`;
             }
         };
