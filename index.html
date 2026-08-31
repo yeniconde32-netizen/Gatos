@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gatos: Destinos Cruzados - Mundo Infinito</title>
+    <title>Gatos: Destinos Cruzados - Movimiento Real</title>
     <style>
         body, html {
             margin: 0;
@@ -36,7 +36,7 @@
             content: '';
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 5, 15, 0.45);
+            background: rgba(10, 5, 15, 0.4);
             pointer-events: none;
         }
 
@@ -47,7 +47,7 @@
             pointer-events: none;
         }
 
-        /* Controles Táctiles (Izquierda) */
+        /* Controles Táctiles Optimizados (Izquierda) */
         .touch-controls {
             position: absolute;
             top: 15px;
@@ -65,22 +65,24 @@
         }
 
         .control-btn {
-            background: rgba(80, 20, 30, 0.85);
+            background: rgba(80, 20, 30, 0.9);
             border: 2px solid #d4af37;
             color: #fff;
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            font-size: 14px;
+            font-size: 16px;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
             user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
         }
 
-        .control-btn:active {
+        .control-btn:active, .control-btn.active {
             background: #d4af37;
             color: #000;
         }
@@ -193,17 +195,17 @@
         <div id="scene-container" style="background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1000&auto=format&fit=crop');">
             <canvas id="gameCanvas"></canvas>
 
-            <!-- Controles Táctiles -->
+            <!-- Controles Táctiles con manejo seguro de eventos móviles -->
             <div class="touch-controls">
                 <div class="dpad-row">
-                    <button class="control-btn" ontouchstart="game.startMove('UP')" onmousedown="game.startMove('UP')" onmouseup="game.stopMove()" ontouchend="game.stopMove()">⬆️</button>
+                    <button class="control-btn" id="btn-up">⬆️</button>
                 </div>
                 <div class="dpad-row">
-                    <button class="control-btn" ontouchstart="game.startMove('LEFT')" onmousedown="game.startMove('LEFT')" onmouseup="game.stopMove()" ontouchend="game.stopMove()">⬅️</button>
-                    <button class="control-btn" ontouchstart="game.startMove('RIGHT')" onmousedown="game.startMove('RIGHT')" onmouseup="game.stopMove()" ontouchend="game.stopMove()">➡️</button>
+                    <button class="control-btn" id="btn-left">⬅️</button>
+                    <button class="control-btn" id="btn-right">➡️</button>
                 </div>
                 <div class="dpad-row">
-                    <button class="control-btn" ontouchstart="game.startMove('DOWN')" onmousedown="game.startMove('DOWN')" onmouseup="game.stopMove()" ontouchend="game.stopMove()">⬇️</button>
+                    <button class="control-btn" id="btn-down">⬇️</button>
                 </div>
             </div>
 
@@ -223,11 +225,11 @@
                 <span id="stat-pistas">🔍 Pistas: 0</span>
                 <span id="stat-ally">🤝 Guía: Selecciona</span>
                 <span id="stat-protect">🛡️ A proteger: Ninguno</span>
-                <span id="stat-zona">📍 Zona: Exterior Infinito</span>
+                <span id="stat-zona">📍 Zona: Exterior</span>
             </div>
             <h3 id="story-title">Gatos: Destinos Cruzados</h3>
             <p id="story-text">
-                ¡Mundo infinito con cámara de desplazamiento! Camina largamente hacia los lados. Elige tu felino para comenzar:
+                ¡Movimiento libre optimizado para celular! Mantén presionado o toca las flechas para caminar por el escenario. Elige tu felino:
             </p>
             <div class="choices-container" id="button-group">
                 <button class="action-button" onclick="game.selectCat('misi', 'Misi (El Gato Naranja)', '#e67e22')">🐱 Jugar con Misi (Pueblo Industrial)</button>
@@ -248,7 +250,6 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // Mundo virtual gigante (ancho de 3000 píxeles para simular infinito)
         const WORLD_WIDTH = 3000;
 
         let player = {
@@ -256,28 +257,25 @@
             y: canvas.height * 0.75,
             name: 'Misi',
             color: '#e67e22',
-            speed: 5,
+            speed: 5.5,
             isMoving: null,
-            boost: 1
+            boost: 1,
+            facing: 1 // 1 para derecha, -1 para izquierda
         };
 
-        // Cámara que sigue al jugador
         let cameraX = 0;
-
         let currentCat = null;
         let isInsideHouse = false;
         let pistasCount = 0;
 
-        // Entidades distribuidas a lo largo del mapa gigante
         let villagers = [
-            { x: 400, y: canvas.height * 0.7, speed: 1, dir: 1, name: 'Aldeano' },
-            { x: 1200, y: canvas.height * 0.8, speed: 0.8, dir: -1, name: 'Ciudadano' },
-            { x: 2200, y: canvas.height * 0.75, speed: 1.2, dir: 1, name: 'Comerciante' }
+            { x: 500, y: canvas.height * 0.7, speed: 1, dir: 1, name: 'Aldeano' },
+            { x: 1400, y: canvas.height * 0.8, speed: 0.9, dir: -1, name: 'Ciudadano' }
         ];
 
-        let enemy = { x: 1600, y: canvas.height * 0.75, speed: 1.5, dir: 1, name: 'Perro Hostil', color: '#dc2626' };
-        let ally = { x: 700, y: canvas.height * 0.7, name: 'Búho Guía', color: '#38bdf8' };
-        let civilian = { x: 1000, y: canvas.height * 0.75, name: 'Cachorro', color: '#facc15' };
+        let enemy = { x: 1700, y: canvas.height * 0.75, speed: 1.4, dir: 1, name: 'Perro Hostil', color: '#dc2626' };
+        let ally = { x: 800, y: canvas.height * 0.7, name: 'Búho Guía', color: '#38bdf8' };
+        let civilian = { x: 1100, y: canvas.height * 0.75, name: 'Cachorro', color: '#facc15' };
 
         const backgrounds = {
             exterior: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1000&auto=format&fit=crop",
@@ -296,7 +294,7 @@
                 const buttons = document.getElementById('button-group');
 
                 title.innerText = `Aventura Activa: ${name}`;
-                text.innerText = `¡Explora el mundo infinito! Camina con las flechas y descubre lo que hay más adelante.`;
+                text.innerText = `¡Camina con libertad por el mapa! Usa las flechas para explorar el escenario.`;
 
                 document.getElementById('stat-ally').innerText = `🤝 Guía: Búho Sabio`;
                 document.getElementById('stat-protect').innerText = `🛡️ A proteger: ${civilian.name}`;
@@ -307,66 +305,111 @@
                 `;
             },
 
-            startMove: function(dir) { player.isMoving = dir; },
-            stopMove: function() { player.isMoving = null; },
-
             action: function(type) {
                 const text = document.getElementById('story-text');
                 if (type === 'attack') {
-                    text.innerText = `⚔️ ¡${player.name} ataca con garras! El enemigo en el camino retrocede.`;
+                    text.innerText = `⚔️ ¡${player.name} ataca con garras! El enemigo retrocede.`;
                 } else if (type === 'speed') {
                     player.boost = 2.2;
-                    text.innerText = `⚡ ¡Velocidad felina activada! Recorre el mapa a gran velocidad.`;
+                    text.innerText = `⚡ ¡Velocidad felina activada! Te desplazas con rapidez.`;
                     setTimeout(() => { player.boost = 1; }, 4000);
                 } else if (type === 'skill') {
                     text.innerText = `✨ ¡Habilidad especial activada! Tu equipo te respalda.`;
                 } else if (type === 'search') {
                     pistasCount++;
                     document.getElementById('stat-pistas').innerText = `🔍 Pistas: ${pistasCount}`;
-                    text.innerText = `🔍 ¡Pista descubierta en esta zona del camino! Total: ${pistasCount}.`;
+                    text.innerText = `🔍 ¡Pista descubierta! Total acumulado: ${pistasCount}.`;
                 } else if (type === 'enterHouse') {
                     isInsideHouse = !isInsideHouse;
                     const sceneContainer = document.getElementById('scene-container');
                     if (isInsideHouse) {
                         sceneContainer.style.backgroundImage = `url('${backgrounds.interior}')`;
                         document.getElementById('stat-zona').innerText = `📍 Zona: Interior Casa (Refugio)`;
-                        text.innerText = `🏠 Has entrado a la casa. Los peligros del exterior han quedado afuera.`;
+                        text.innerText = `🏠 Has entrado a la casa. Investiga el interior con tranquilidad.`;
                     } else {
                         sceneContainer.style.backgroundImage = `url('${backgrounds.exterior}')`;
-                        document.getElementById('stat-zona').innerText = `📍 Zona: Exterior Infinito`;
-                        text.innerText = `🏠 Has salido al exterior. ¡Continúa tu marcha por el camino!`;
+                        document.getElementById('stat-zona').innerText = `📍 Zona: Exterior`;
+                        text.innerText = `🏠 Has salido al exterior. ¡Continúa tu recorrido libre!`;
                     }
                 }
             }
         };
 
-        function updateGame() {
-            if (player.isMoving === 'LEFT') player.x -= player.speed * player.boost;
-            if (player.isMoving === 'RIGHT') player.x += player.speed * player.boost;
-            if (player.isMoving === 'UP') player.y -= (player.speed * player.boost) * 0.7;
-            if (player.isMoving === 'DOWN') player.y += (player.speed * player.boost) * 0.7;
+        // Enlace robusto de controles táctiles para evitar bloqueos
+        function setupControls() {
+            const map = {
+                'btn-up': 'UP',
+                'btn-left': 'LEFT',
+                'btn-right': 'RIGHT',
+                'btn-down': 'DOWN'
+            };
 
-            // Límites dentro del mundo gigante
+            Object.keys(map).forEach(id => {
+                const btn = document.getElementById(id);
+                const dir = map[id];
+
+                const startFn = (e) => {
+                    e.preventDefault();
+                    player.isMoving = dir;
+                    btn.classList.add('active');
+                };
+
+                const endFn = (e) => {
+                    e.preventDefault();
+                    if (player.isMoving === dir) {
+                        player.isMoving = null;
+                    }
+                    btn.classList.remove('active');
+                };
+
+                btn.addEventListener('touchstart', startFn, { passive: false });
+                btn.addEventListener('touchend', endFn, { passive: false });
+                btn.addEventListener('touchcancel', endFn, { passive: false });
+                btn.addEventListener('mousedown', startFn);
+                btn.addEventListener('mouseup', endFn);
+                btn.addEventListener('mouseleave', endFn);
+            });
+        }
+
+        setupControls();
+
+        function updateGame() {
+            if (player.isMoving === 'LEFT') {
+                player.x -= player.speed * player.boost;
+                player.facing = -1;
+            }
+            if (player.isMoving === 'RIGHT') {
+                player.x += player.speed * player.boost;
+                player.facing = 1;
+            }
+            if (player.isMoving === 'UP') {
+                player.y -= (player.speed * player.boost) * 0.7;
+            }
+            if (player.isMoving === 'DOWN') {
+                player.y += (player.speed * player.boost) * 0.7;
+            }
+
+            // Límites del escenario
             if (player.x < 40) player.x = 40;
             if (player.x > WORLD_WIDTH - 40) player.x = WORLD_WIDTH - 40;
             if (player.y < canvas.height * 0.45) player.y = canvas.height * 0.45;
             if (player.y > canvas.height - 30) player.y = canvas.height - 30;
 
-            // La cámara sigue suavemente al jugador horizontalmente
+            // Cámara sigue de manera fluida al jugador
             cameraX = player.x - canvas.width / 2;
             if (cameraX < 0) cameraX = 0;
             if (cameraX > WORLD_WIDTH - canvas.width) cameraX = WORLD_WIDTH - canvas.width;
 
-            // Movimiento autónomo de los aldeanos
+            // Movimiento de aldeanos
             villagers.forEach(v => {
                 v.x += v.speed * v.dir;
                 if (v.x > WORLD_WIDTH - 200 || v.x < 200) v.dir *= -1;
             });
 
-            // Patrulla del enemigo en exteriores
+            // Movimiento de enemigos
             if (currentCat && !isInsideHouse) {
                 enemy.x += enemy.speed * enemy.dir;
-                if (enemy.x > WORLD_WIDTH - 300 || enemy.x < 500) enemy.dir *= -1;
+                if (enemy.x > WORLD_WIDTH - 300 || enemy.x < 400) enemy.dir *= -1;
             }
         }
 
@@ -374,14 +417,13 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             ctx.save();
-            // Desplazar la cámara virtual para lograr el efecto infinito
             ctx.translate(-cameraX, 0);
 
-            // Suelo del escenario infinito
+            // Suelo
             ctx.fillStyle = 'rgba(15, 10, 8, 0.88)';
             ctx.fillRect(0, canvas.height - 35, WORLD_WIDTH, 35);
 
-            // Dibujar aldeanos distribuidos por el mapa largo
+            // Aldeanos
             villagers.forEach(v => {
                 ctx.fillStyle = '#94a3b8';
                 ctx.fillRect(v.x - 7, v.y - 26, 14, 22);
@@ -393,7 +435,7 @@
                 ctx.fillText(v.name, v.x - 22, v.y - 40);
             });
 
-            // Si está en el exterior, mostrar enemigos y compañeros en el mapa
+            // Enemigos y compañeros en exteriores
             if (currentCat && !isInsideHouse) {
                 ctx.fillStyle = enemy.color;
                 ctx.beginPath();
@@ -416,12 +458,13 @@
                 ctx.fillText(civilian.name, civilian.x - 25, civilian.y - 22);
             }
 
-            // Dibujar Gato Protagonista
+            // Dibujar Gato Protagonista con orientación hacia donde camina
             let catColor = currentCat ? player.color : '#e67e22';
             let catName = currentCat ? player.name : 'Elige tu Gato';
 
             ctx.save();
             ctx.translate(player.x, player.y);
+            ctx.scale(player.facing, 1); // Voltea el gato según la dirección
             
             ctx.fillStyle = catColor;
             ctx.beginPath();
@@ -439,13 +482,14 @@
 
             ctx.fillStyle = '#00ffcc';
             ctx.fillRect(14, -12, 3, 3);
+            ctx.restore();
 
+            // Nombre flotante centrado sobre el gato
             ctx.fillStyle = '#fef3c7';
             ctx.font = '11px Courier New';
             ctx.textAlign = 'center';
-            ctx.fillText(catName, 0, -38);
+            ctx.fillText(catName, player.x, player.y - 38);
 
-            ctx.restore();
             ctx.restore();
         }
 
