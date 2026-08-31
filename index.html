@@ -5,265 +5,277 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gatos: Destinos Cruzados - 2D Adventure</title>
     <style>
-        * { box-sizing: border-box; user-select: none; }
+        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
         body {
-            background-color: #0b0e14;
-            color: #cbd5e1;
-            font-family: 'Courier New', Courier, monospace;
+            background-color: #000;
+            color: #fff;
+            font-family: 'Cinzel', serif; /* Fuente más estilo aventura/fantasía */
             margin: 0;
-            padding: 10px;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             overflow: hidden;
-        }
-        h2 { color: #00f2ff; margin: 5px 0; font-size: 16px; text-align: center; }
-        
-        /* CONTENEDOR DEL JUEGO / CANVAS */
-        #game-container {
-            width: 100%;
-            max-width: 450px;
-            height: 260px;
-            background: #121620;
-            border: 2px solid #1e2533;
-            border-radius: 10px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            height: 100vh;
         }
 
-        /* ENTIDADES 2D */
-        .entity {
-            position: absolute;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            transition: transform 0.1s;
-        }
-        #player { background: #ff7a00; border: 2px solid #fff; z-index: 5; }
-        #enemy { background: #ff2a2a; border: 2px solid #555; z-index: 4; }
-
-        /* HUD Y BARRAS DE VIDA */
-        .hud-top {
+        /* EL CANVAS PRINCIPAL ES LA PANTALLA DE JUEGO TOTAL */
+        #gameCanvas {
             width: 100%;
-            max-width: 450px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            margin-bottom: 5px;
-            background: #161b26;
-            padding: 8px;
-            border-radius: 6px;
-        }
-        .health-bar {
-            width: 100px;
-            height: 10px;
-            background: #333;
-            border-radius: 5px;
-            overflow: hidden;
-            display: inline-block;
-            vertical-align: middle;
-        }
-        .health-fill {
             height: 100%;
-            background: #00ff66;
-            width: 100%;
-            transition: width 0.3s;
+            display: block;
+            background: #1a1a1a; /* Color de fondo mientras carga la imagen */
         }
 
-        /* PANEL DE ACCIONES Y CONTROLES */
-        .controls-panel {
-            width: 100%;
-            max-width: 450px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .dpad {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
-            justify-items: center;
-            align-items: center;
-            background: #121620;
+        /* MANTENEMOS EL LOG DE TEXTO PERO MÁS ELEGANTE Y SUPERPUESTO */
+        #log-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            background: rgba(10, 15, 22, 0.7);
+            border: 1px solid #1e3a8a;
+            color: #60a5fa;
             padding: 10px;
             border-radius: 8px;
-        }
-        .btn {
-            background: #1e2533;
-            color: #fff;
-            border: 1px solid #334155;
-            padding: 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 14px;
-            text-align: center;
-            cursor: pointer;
-        }
-        .btn:active { background: #00f2ff; color: #000; }
-        
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .btn-action {
-            background: #9900ff;
-            border: none;
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 13px;
-            cursor: pointer;
-        }
-        .btn-action:active { background: #b84dff; }
-
-        /* LOG DE HISTORIA */
-        .log-box {
-            width: 100%;
-            max-width: 450px;
-            background: #121620;
-            border: 1px solid #1e2533;
-            padding: 10px;
-            border-radius: 6px;
-            margin-top: 8px;
             font-size: 11px;
             height: 60px;
             overflow-y: auto;
-            color: #38bdf8;
+            font-family: 'Courier New', Courier, monospace; /* Mantener la estética de log */
+            pointer-events: none; /* Permite hacer clic a través de él */
+            z-index: 10;
         }
+
+        /* Cargamos una fuente de fantasía (opcional, requiere internet) */
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap');
     </style>
 </head>
 <body>
 
-    <h2 id="campaign-title">Campaña: Misi (Gato Naranja)</h2>
-
-    <div class="hud-top">
-        <div>HP Gato: <div class="health-bar"><div id="player-hp" class="health-fill"></div></div></div>
-        <div>HP Enemigo: <div class="health-bar"><div id="enemy-hp" class="health-fill" style="background:#ff3333;"></div></div></div>
-    </div>
-
-    <div id="game-container">
-        <div id="player" class="entity" style="top: 100px; left: 50px;">🐱</div>
-        <div id="enemy" class="entity" style="top: 100px; left: 300px;">🐶</div>
-    </div>
-
-    <div class="controls-panel">
-        <div class="dpad">
-            <div></div>
-            <div class="btn" onclick="movePlayer(0, -15)">⬆️</div>
-            <div></div>
-            <div class="btn" onclick="movePlayer(-15, 0)">⬅️</div>
-            <div class="btn" onclick="switchCampaign()">🔄</div>
-            <div class="btn" onclick="movePlayer(15, 0)">➡️</div>
-            <div></div>
-            <div class="btn" onclick="movePlayer(0, 15)">⬇️</div>
-            <div></div>
-        </div>
-
-        <div class="action-buttons">
-            <button class="btn-action" style="background:#ff3333;" onclick="playerAttack()">⚔️ Atacar</button>
-            <button class="btn-action" style="background:#00a2ff;" onclick="playerSpecial()">⚡ Habilidad</button>
-            <button class="btn-action" style="background:#eab308;" onclick="searchZone()">🔍 Investigar</button>
-        </div>
-    </div>
-
-    <div id="log" class="log-box">
-        [Sistema] ¡Bienvenido a Gatos: Destinos Cruzados! Acérquate al enemigo y presiona Atacar.
+    <!-- EL ELEMENTO CANVAS DONDE SE DIBUJARÁ TODO -->
+    <canvas id="gameCanvas"></canvas>
+    
+    <!-- EL LOG DE TEXTO FLOTANTE -->
+    <div id="log-overlay">
+        [Sistema] ¡Bienvenido a Gatos: Destinos Cruzados!
     </div>
 
     <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const logEl = document.getElementById('log-overlay');
+
+        // --- CONFIGURACIÓN DE IMÁGENES Y ACTIVOS ---
+        // NOTA: Reemplaza estas rutas por tus propias imágenes (o usa las de ejemplo)
+        const assets = {
+            backgrounds: [
+                "https://images.unsplash.com/photo-1542227072-b5317436c971?q=80&w=800&h=600&auto=format&fit=crop", // Refugio Interior (Misi)
+                "https://images.unsplash.com/photo-1611532737174-0f395d1f23b0?q=80&w=800&h=600&auto=format&fit=crop"  // Aldea Niebla (Luna)
+            ],
+            players: [
+                "https://cdn-icons-png.flaticon.com/512/2199/2199744.png", // Misi (Icono Gato Naranja)
+                "https://cdn-icons-png.flaticon.com/512/3069/3069194.png"  // Luna (Icono Gato Negro)
+            ],
+            enemies: [
+                "https://cdn-icons-png.flaticon.com/512/2414/2414615.png", // Perro Mutante
+                "https://cdn-icons-png.flaticon.com/512/4316/4316271.png"  // Sombra Fantasmal
+            ],
+            fx: "https://cdn-icons-png.flaticon.com/512/6676/6676047.png" // Icono de Espada (Ataque)
+        };
+
+        // Precargar imágenes
+        const imgObjs = { bgs: [], players: [], enemies: [], fx: null };
+        function preloadAssets(callback) {
+            let loaded = 0;
+            const total = assets.backgrounds.length + assets.players.length + assets.enemies.length + 1;
+            
+            const onLoad = () => { loaded++; if(loaded === total) callback(); };
+            
+            assets.backgrounds.forEach(src => { let img = new Image(); img.onload = onLoad; img.src = src; imgObjs.bgs.push(img); });
+            assets.players.forEach(src => { let img = new Image(); img.onload = onLoad; img.src = src; imgObjs.players.push(img); });
+            assets.enemies.forEach(src => { let img = new Image(); img.onload = onLoad; img.src = src; imgObjs.enemies.push(img); });
+            imgObjs.fx = new Image(); imgObjs.fx.onload = onLoad; imgObjs.fx.src = assets.fx;
+        }
+
+        // --- ESTADO DEL JUEGO ---
         let currentCampaign = 0;
         const campaigns = [
-            { name: "Misi (Gato Naranja)", zone: "Refugio Interior", pIcon: "🐱", eIcon: "🐶", eName: "Perro Mutante", pHp: 100, eHp: 100 },
-            { name: "Luna (Gata Blanca)", zone: "Aldea de la Niebla", pIcon: "🐈‍⬛", eIcon: "👻", eName: "Sombra Fantasmal", pHp: 100, eHp: 120 }
+            { name: "Misi (Gato Naranja)", zone: "Refugio Interior", eName: "Perro Mutante", pHp: 100, eHp: 100, pMaxHp: 100, eMaxHp: 100 },
+            { name: "Luna (Gata Blanca)", zone: "Aldea de la Niebla", eName: "Sombra Fantasmal", pHp: 100, eHp: 120, pMaxHp: 100, eMaxHp: 120 }
         ];
 
-        let playerX = 50, playerY = 100;
-        let enemyX = 300, enemyY = 100;
-        let pHealth = 100, eHealth = 100;
+        let playerPos = { x: 100, y: 350 };
+        let enemyPos = { x: 600, y: 350 };
+        let fxAnim = { active: false, x: 0, y: 0, timer: 0 };
 
-        const playerEl = document.getElementById('player');
-        const enemyEl = document.getElementById('enemy');
-        const logEl = document.getElementById('log');
-
-        function updatePositions() {
-            playerEl.style.left = playerX + 'px';
-            playerEl.style.top = playerY + 'px';
-            enemyEl.style.left = enemyX + 'px';
-            enemyEl.style.top = enemyY + 'px';
+        // --- DIMENSIONES Y ESCALADO ---
+        let width, height, scaleFactor;
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            scaleFactor = Math.min(width / 800, height / 600); // Escalado base
+            playerPos.y = height * 0.6;
+            enemyPos.y = height * 0.6;
+            enemyPos.x = width * 0.75;
         }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
-        function log(msg) {
-            logEl.innerHTML += `<br>` + msg;
-            logEl.scrollTop = logEl.scrollHeight;
-        }
+        // --- DIBUJADO EN EL CANVAS ---
+        function drawGame() {
+            if (imgObjs.bgs.length < 2) return; // Esperar a cargar
 
-        function movePlayer(dx, dy) {
-            playerX = Math.max(10, Math.min(390, playerX + dx));
-            playerY = Math.max(10, Math.min(205, playerY + dy));
-            updatePositions();
-            checkProximity();
-        }
+            // 1. Fondo
+            ctx.drawImage(imgObjs.bgs[currentCampaign], 0, 0, width, height);
 
-        function checkProximity() {
-            let dist = Math.abs(playerX - enemyX);
-            if(dist < 50) {
-                log("[Alerta] ¡El enemigo reacciona y te acecha de cerca!");
+            // 2. Efecto de Vignette (bordes oscuros para estilo cinemático)
+            let gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width/1.5);
+            gradient.addColorStop(0, 'rgba(0,0,0,0)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0.7)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0,0,width,height);
+
+            // 3. Personajes (Sprites)
+            let pImg = imgObjs.players[currentCampaign];
+            let eImg = imgObjs.enemies[currentCampaign];
+            let charSize = Math.min(width, height) * 0.2; // Tamaño relativo de los personajes
+            
+            ctx.drawImage(pImg, playerPos.x, playerPos.y, charSize, charSize);
+            ctx.drawImage(eImg, enemyPos.x, enemyPos.y, charSize, charSize);
+
+            // 4. HUD DE JUEGO (Barras de vida, Títulos, Botones dibujados)
+            drawHUD(charSize);
+
+            // 5. Animación de Ataque (si está activa)
+            if (fxAnim.active) {
+                ctx.globalAlpha = fxAnim.timer / 20; // Desvanecer
+                ctx.drawImage(imgObjs.fx, fxAnim.x, fxAnim.y, charSize/2, charSize/2);
+                ctx.globalAlpha = 1;
+                fxAnim.timer--;
+                if(fxAnim.timer <= 0) fxAnim.active = false;
             }
+
+            requestAnimationFrame(drawGame);
         }
 
-        function playerAttack() {
-            let dist = Math.abs(playerX - enemyX);
-            if(dist < 70) {
-                eHealth -= 25;
-                if(eHealth < 0) eHealth = 0;
-                document.getElementById('enemy-hp').style.width = eHealth + '%';
-                log(`[Ataque] ¡Golpe directo al ${campaigns[currentCampaign].eName}! Vida enemiga: ${eHealth}%`);
-                
-                // Efecto visual de daño en el enemigo
-                enemyEl.style.transform = "scale(1.3)";
-                setTimeout(() => enemyEl.style.transform = "scale(1)", 150);
-
-                if(eHealth === 0) {
-                    log(`🎉 ¡Has derrotado a la amenaza de la zona! Camino libre.`);
-                }
-            } else {
-                log(`[Fallido] Estás muy lejos para atacar. ¡Acércate con las flechas!`);
-            }
-        }
-
-        function playerSpecial() {
-            log(`[Habilidad] ¡${campaigns[currentCampaign].name} usa su agilidad de resiliencia esquivando el peligro!`);
-        }
-
-        function searchZone() {
-            log(`[Investigación] Has encontrado una pista secreta sobre el destino de los otros gatos.`);
-        }
-
-        function switchCampaign() {
-            currentCampaign = (currentCampaign + 1) % campaigns.length;
+        function drawHUD(charSize) {
+            ctx.font = 'bold 20px Cinzel, serif';
+            ctx.fillStyle = '#fff';
+            ctx.textAlign = 'center';
+            
+            // Título Campaña
             let c = campaigns[currentCampaign];
-            document.getElementById('campaign-title').innerText = "Campaña: " + c.name;
-            playerEl.innerText = c.pIcon;
-            enemyEl.innerText = c.eIcon;
-            pHealth = c.pHp;
-            eHealth = c.eHp;
-            document.getElementById('player-hp').style.width = pHealth + '%';
-            document.getElementById('enemy-hp').style.width = eHealth + '%';
-            playerX = 50; playerY = 100;
-            enemyX = 300; enemyY = 100;
-            updatePositions();
-            log(`=== CAMBIO DE CAMPAÑA: ${c.zone} (${c.name}) ===`);
+            ctx.fillText(c.name + " - " + c.zone, width/2, 50);
+
+            // Barras de vida (Estilo estilizado)
+            drawHealthBar(50, 80, 200, 20, c.pHp, c.pMaxHp, "#0f0"); // Jugador
+            drawHealthBar(width - 250, 80, 200, 20, c.eHp, c.eMaxHp, "#f00"); // Enemigo
+            ctx.font = '12px Arial';
+            ctx.fillText("HP Gato", 150, 75);
+            ctx.fillText("HP Enemigo", width - 150, 75);
+
+            // Botones D-Pad (Dibujados en pantalla táctil)
+            drawDPad(charSize);
+
+            // Botones de Acción (Dibujados en pantalla táctil)
+            drawActionButtons(charSize);
         }
 
-        updatePositions();
-    </script>
-</body>
-</html>
+        function drawHealthBar(x, y, w, h, current, max, color) {
+            ctx.fillStyle = '#333';
+            ctx.fillRect(x, y, w, h);
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, (current / max) * w, h);
+            ctx.strokeStyle = '#fff';
+            ctx.strokeRect(x, y, w, h);
+        }
+
+        const dpadAreas = [];
+        function drawDPad(cs) {
+            const btnSize = cs * 0.4;
+            const startX = cs * 0.5;
+            const startY = height - cs * 1.5;
+            const gap = btnSize + 10;
+
+            // D-Pad de 5 botones (Central es '🔄')
+            const buttons = [
+                { dx: 0, dy: -1, icon: '▲', id: 'up' }, // ↑
+                { dx: -1, dy: 0, icon: '◀', id: 'left' }, // ←
+                { dx: 0, dy: 0, icon: '🔄', id: 'switch' }, // 🔄 (Centro)
+                { dx: 1, dy: 0, icon: '▶', id: 'right' }, // →
+                { dx: 0, dy: 1, icon: '▼', id: 'down' } // ↓
+            ];
+            
+            dpadAreas.length = 0; 
+            buttons.forEach(b => {
+                let bx = startX + b.dx * gap;
+                let by = startY + b.dy * gap;
+                
+                // Dibujar botón
+                ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                ctx.fillRect(bx, by, btnSize, btnSize);
+                ctx.strokeStyle = '#fff';
+                ctx.strokeRect(bx, by, btnSize, btnSize);
+                
+                // Icono
+                ctx.fillStyle = '#fff';
+                ctx.font = '20px Arial';
+                ctx.fillText(b.icon, bx + btnSize/2, by + btnSize/1.5);
+                
+                dpadAreas.push({ x1: bx, y1: by, x2: bx+btnSize, y2: by+btnSize, id: b.id });
+            });
+        }
+
+        const actionAreas = [];
+        function drawActionButtons(cs) {
+            const btnWidth = cs * 1.2;
+            const btnHeight = cs * 0.5;
+            const startX = width - cs * 1.8;
+            const startY = height - cs * 1.5;
+            const gap = btnHeight + 15;
+
+            const actions = [
+                { text: '⚔️ Atacar', color: 'rgba(255,0,0,0.5)', id: 'attack' },
+                { text: '⚡ Habilidad', color: 'rgba(0,162,255,0.5)', id: 'skill' },
+                { text: '🔍 Investigar', color: 'rgba(234,179,8,0.5)', id: 'search' }
+            ];
+
+            actionAreas.length = 0;
+            actions.forEach((a, i) => {
+                let ax = startX;
+                let ay = startY + i * gap;
+                
+                // Dibujar botón
+                ctx.fillStyle = a.color;
+                ctx.fillRect(ax, ay, btnWidth, btnHeight);
+                ctx.strokeStyle = '#fff';
+                ctx.strokeRect(ax, ay, btnWidth, btnHeight);
+                
+                // Texto
+                ctx.fillStyle = '#fff';
+                ctx.font = '14px Cinzel, serif';
+                ctx.fillText(a.text, ax + btnWidth/2, ay + btnHeight/1.5);
+                
+                actionAreas.push({ x1: ax, y1: ay, x2: ax+btnWidth, y2: ay+btnHeight, id: a.id });
+            });
+        }
+
+        // --- INTERACCIÓN TÁCTIL (Lógica de Juego) ---
+        function getClickCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (e.touches ? e.touches[0].clientX : e.clientX) - rect.left,
+                y: (e.touches ? e.touches[0].clientY : e.clientY) - rect.top
+            };
+        }
+
+        function handleInput(id) {
+            if (id === 'switch') { switchCampaign(); return; }
+
+            let moveSpeed = 30;
+            let moved = false;
+            if(id === 'up') { playerPos.y -= moveSpeed; moved = true; }
+            if(id === 'down') { playerPos.y += moveSpeed; moved = true; }
+            if(id
