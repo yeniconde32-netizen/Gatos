@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gatos: Destinos Cruzados - Aventura Real</title>
+    <title>Gatos: Destinos Cruzados - Aventura Extendida</title>
     <style>
         body, html {
             margin: 0;
@@ -22,7 +22,6 @@
             position: relative;
         }
 
-        /* Escenario dinámico que cambia al entrar a casas */
         #scene-container {
             flex: 1;
             width: 100%;
@@ -48,7 +47,7 @@
             pointer-events: none;
         }
 
-        /* Controles Táctiles de Movimiento Real (Izquierda) */
+        /* Controles Táctiles de Movimiento (Izquierda) */
         .touch-controls {
             position: absolute;
             top: 15px;
@@ -69,10 +68,10 @@
             background: rgba(80, 20, 30, 0.85);
             border: 2px solid #d4af37;
             color: #fff;
-            width: 42px;
-            height: 42px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            font-size: 15px;
+            font-size: 14px;
             cursor: pointer;
             display: flex;
             justify-content: center;
@@ -101,7 +100,7 @@
             background: rgba(139, 0, 0, 0.85);
             border: 2px solid #ff3333;
             color: #fff;
-            padding: 7px 12px;
+            padding: 6px 10px;
             font-family: 'Courier New', Courier, monospace;
             font-size: 10px;
             border-radius: 18px;
@@ -116,7 +115,7 @@
             background: #ff0000;
         }
 
-        /* Panel Inferior de Historia y Decisiones */
+        /* Panel Inferior de Historia */
         .ui-panel {
             background: rgba(16, 12, 18, 0.98);
             border-top: 3px solid #d4af37;
@@ -194,7 +193,7 @@
         <div id="scene-container" style="background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1000&auto=format&fit=crop');">
             <canvas id="gameCanvas"></canvas>
 
-            <!-- Controles Táctiles Reales para Caminar -->
+            <!-- Controles Táctiles Reales -->
             <div class="touch-controls">
                 <div class="dpad-row">
                     <button class="control-btn" ontouchstart="game.startMove('UP')" onmousedown="game.startMove('UP')" onmouseup="game.stopMove()" ontouchend="game.stopMove()">⬆️</button>
@@ -208,7 +207,7 @@
                 </div>
             </div>
 
-            <!-- Botones de Acción en Pantalla -->
+            <!-- Botones de Acción -->
             <div class="action-panel-hud">
                 <button class="action-hud-btn" onclick="game.action('attack')">⚔️ Atacar</button>
                 <button class="action-hud-btn" onclick="game.action('speed')">⚡ Velocidad</button>
@@ -228,7 +227,7 @@
             </div>
             <h3 id="story-title">Gatos: Destinos Cruzados</h3>
             <p id="story-text">
-                ¡Bienvenido a la aventura real! Usa las flechas de movimiento para caminar por el escenario, acércate a las casas y esquiva a los enemigos. Selecciona tu personaje:
+                ¡Usa las flechas para caminar por todo el escenario! Los personajes ya están distribuidos por el mapa. Elige tu felino:
             </p>
             <div class="choices-container" id="button-group">
                 <button class="action-button" onclick="game.selectCat('misi', 'Misi (El Gato Naranja)', '#e67e22')">🐱 Jugar con Misi (Pueblo Industrial)</button>
@@ -249,13 +248,12 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // Posición y estado del jugador
         let player = {
             x: 100,
-            y: canvas.height - 80,
+            y: canvas.height * 0.75,
             name: 'Misi',
             color: '#e67e22',
-            speed: 4,
+            speed: 5,
             isMoving: null,
             boost: 1
         };
@@ -264,15 +262,24 @@
         let isInsideHouse = false;
         let pistasCount = 0;
 
-        // Entidades autónomas que caminan por el escenario
+        // Entidades distribuidas a lo largo de todo el ancho de la pantalla
         let villagers = [
-            { x: 200, y: canvas.height - 75, speed: 1, dir: 1, name: 'Aldeano' },
-            { x: 450, y: canvas.height - 75, speed: 0.8, dir: -1, name: 'Ciudadano' }
+            { x: 120, y: canvas.height * 0.7, speed: 1, dir: 1, name: 'Aldeano' },
+            { x: 300, y: canvas.height * 0.8, speed: 0.8, dir: -1, name: 'Ciudadano' }
         ];
 
-        let enemy = { x: canvas.width - 150, y: canvas.height - 80, speed: 1.2, dir: -1, name: 'Perro Hostil', color: '#dc2626' };
-        let ally = { x: 150, y: canvas.height - 80, name: 'Búho Guía', color: '#38bdf8' };
-        let civilian = { x: canvas.width - 260, y: canvas.height - 80, name: 'Cachorro', color: '#facc15' };
+        let enemy = { x: 0, y: canvas.height * 0.75, speed: 1.2, dir: 1, name: 'Perro Hostil', color: '#dc2626' };
+        let ally = { x: 0, y: canvas.height * 0.7, name: 'Búho Guía', color: '#38bdf8' };
+        let civilian = { x: 0, y: canvas.height * 0.75, name: 'Cachorro', color: '#facc15' };
+
+        // Posicionar entidades de forma proporcional al ancho de la pantalla actual
+        function resetPositions() {
+            enemy.x = canvas.width - 100;
+            ally.x = canvas.width * 0.35;
+            civilian.x = canvas.width - 200;
+        }
+        window.addEventListener('resize', resetPositions);
+        resetPositions();
 
         const backgrounds = {
             exterior: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1000&auto=format&fit=crop",
@@ -284,15 +291,14 @@
                 currentCat = key;
                 player.name = name;
                 player.color = color;
-                player.x = 100;
-                player.y = canvas.height - 80;
+                player.x = 80;
 
                 const title = document.getElementById('story-title');
                 const text = document.getElementById('story-text');
                 const buttons = document.getElementById('button-group');
 
                 title.innerText = `Aventura Activa: ${name}`;
-                text.innerText = `¡Utiliza los botones de dirección para caminar por el escenario! Cuidado con ${enemy.name} que patrulla la zona.`;
+                text.innerText = `¡Camina con las flechas por todo el escenario! Aléjate de ${enemy.name} y protege a tu compañero.`;
 
                 document.getElementById('stat-ally').innerText = `🤝 Guía: Búho Sabio`;
                 document.getElementById('stat-protect').innerText = `🛡️ A proteger: ${civilian.name}`;
@@ -303,147 +309,136 @@
                 `;
             },
 
-            startMove: function(dir) {
-                player.isMoving = dir;
-            },
-
-            stopMove: function() {
-                player.isMoving = null;
-            },
+            startMove: function(dir) { player.isMoving = dir; },
+            stopMove: function() { player.isMoving = null; },
 
             action: function(type) {
                 const text = document.getElementById('story-text');
                 if (type === 'attack') {
-                    text.innerText = `⚔️ ¡${player.name} ataca ferozmente con sus garras a ${enemy.name}! El enemigo retrocede.`;
+                    text.innerText = `⚔️ ¡${player.name} ataca con garras a ${enemy.name}! El enemigo se retira.`;
                 } else if (type === 'speed') {
                     player.boost = 2.2;
-                    text.innerText = `⚡ ¡Velocidad felina activada! Te desplazas el doble de rápido por el escenario.`;
+                    text.innerText = `⚡ ¡Velocidad felina activada! Te desplazas con rapidez por el mapa.`;
                     setTimeout(() => { player.boost = 1; }, 4000);
                 } else if (type === 'skill') {
-                    text.innerText = `✨ ¡Habilidad especial! El guía distrae a los peligros mientras resguardas a ${civilian.name}.`;
+                    text.innerText = `✨ ¡Habilidad especial! El guía distrae al peligro mientras resguardas a ${civilian.name}.`;
                 } else if (type === 'search') {
                     pistasCount++;
                     document.getElementById('stat-pistas').innerText = `🔍 Pistas: ${pistasCount}`;
-                    text.innerText = `🔍 ¡Pista encontrada! Has descubierto marcas secretas en el camino. Total de pistas: ${pistasCount}.`;
+                    text.innerText = `🔍 ¡Pista encontrada en el escenario! Total acumulado: ${pistasCount}.`;
                 } else if (type === 'enterHouse') {
                     isInsideHouse = !isInsideHouse;
                     const sceneContainer = document.getElementById('scene-container');
                     if (isInsideHouse) {
                         sceneContainer.style.backgroundImage = `url('${backgrounds.interior}')`;
                         document.getElementById('stat-zona').innerText = `📍 Zona: Interior Casa`;
-                        text.innerText = `🏠 Has entrado a la casa. Investiga los rincones oscuros y busca pistas ocultas.`;
+                        text.innerText = `🏠 Has entrado a la casa. Investiga los rincones y busca pistas ocultas.`;
                     } else {
                         sceneContainer.style.backgroundImage = `url('${backgrounds.exterior}')`;
                         document.getElementById('stat-zona').innerText = `📍 Zona: Exterior`;
-                        text.innerText = `🏠 Has salido al exterior del pueblo. ¡Vuelve a caminar por el escenario!`;
+                        text.innerText = `🏠 Has salido al exterior del pueblo. ¡Continúa tu recorrido!`;
                     }
                 }
             }
         };
 
-        // Bucle principal del juego para animar el movimiento físico en tiempo real
         function updateGame() {
-            // Mover al jugador si hay una tecla presionada
             if (player.isMoving === 'LEFT') player.x -= player.speed * player.boost;
             if (player.isMoving === 'RIGHT') player.x += player.speed * player.boost;
-            if (player.isMoving === 'UP') player.y -= (player.speed * player.boost) * 0.6;
-            if (player.isMoving === 'DOWN') player.y += (player.speed * player.boost) * 0.6;
+            if (player.isMoving === 'UP') player.y -= (player.speed * player.boost) * 0.7;
+            if (player.isMoving === 'DOWN') player.y += (player.speed * player.boost) * 0.7;
 
-            // Limitar al jugador dentro de los bordes del mapa
+            // Limites amplios en todo el ancho de la pantalla
             if (player.x < 30) player.x = 30;
             if (player.x > canvas.width - 30) player.x = canvas.width - 30;
-            if (player.y < canvas.height * 0.45) player.y = canvas.height * 0.45;
-            if (player.y > canvas.height - 35) player.y = canvas.height - 35;
+            if (player.y < canvas.height * 0.4) player.y = canvas.height * 0.4;
+            if (player.y > canvas.height - 30) player.y = canvas.height - 30;
 
-            // Mover personajes ciudadanos automáticamente
+            // Movimiento independiente de los aldeanos por todo el mapa
             villagers.forEach(v => {
                 v.x += v.speed * v.dir;
-                if (v.x > canvas.width - 60 || v.x < 60) v.dir *= -1;
+                if (v.x > canvas.width - 40 || v.x < 40) v.dir *= -1;
             });
 
-            // Mover enemigo patrullando
+            // Movimiento del enemigo patrullando el escenario
             if (currentCat) {
                 enemy.x += enemy.speed * enemy.dir;
-                if (enemy.x > canvas.width - 80 || enemy.x < 100) enemy.dir *= -1;
+                if (enemy.x > canvas.width - 60 || enemy.x < 80) enemy.dir *= -1;
             }
         }
 
         function drawScene() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Suelo base del escenario
-            ctx.fillStyle = 'rgba(15, 10, 8, 0.88)';
-            ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+            // Suelo del escenario
+            ctx.fillStyle = 'rgba(15, 10, 8, 0.85)';
+            ctx.fillRect(0, canvas.height - 35, canvas.width, 35);
 
-            // Dibujar ciudadanos caminando por el pueblo
+            // Dibujar aldeanos caminando distribuidos
             villagers.forEach(v => {
                 ctx.fillStyle = '#94a3b8';
-                ctx.fillRect(v.x - 7, v.y - 28, 14, 24);
+                ctx.fillRect(v.x - 7, v.y - 26, 14, 22);
                 ctx.beginPath();
-                ctx.arc(v.x, v.y - 32, 6, 0, Math.PI * 2);
+                ctx.arc(v.x, v.y - 30, 6, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.fillStyle = '#f1f5f9';
                 ctx.font = '9px Courier New';
-                ctx.fillText(v.name, v.x - 22, v.y - 42);
+                ctx.fillText(v.name, v.x - 22, v.y - 40);
             });
 
             if (currentCat) {
-                // Dibujar Enemigo acechando
+                // Dibujar Enemigo patrullando
                 ctx.fillStyle = enemy.color;
                 ctx.beginPath();
-                ctx.ellipse(enemy.x, enemy.y - 10, 18, 11, 0, 0, Math.PI * 2);
+                ctx.ellipse(enemy.x, enemy.y - 10, 16, 10, 0, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.fillStyle = '#fff';
                 ctx.font = '10px Courier New';
                 ctx.fillText(`⚠️ ${enemy.name}`, enemy.x - 35, enemy.y - 25);
 
-                // Dibujar Guía y Civil
+                // Dibujar Guía
                 ctx.fillStyle = ally.color;
                 ctx.beginPath();
-                ctx.arc(ally.x, ally.y - 12, 10, 0, Math.PI * 2);
+                ctx.arc(ally.x, ally.y - 10, 10, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.fillStyle = '#fff';
-                ctx.fillText(ally.name, ally.x - 25, ally.y - 26);
+                ctx.fillText(ally.name, ally.x - 25, ally.y - 24);
 
+                // Dibujar Civil a Proteger
                 ctx.fillStyle = civilian.color;
                 ctx.fillRect(civilian.x - 8, civilian.y - 14, 16, 14);
                 ctx.fillStyle = '#fff';
                 ctx.fillText(civilian.name, civilian.x - 25, civilian.y - 22);
             }
 
-            // Dibujar Gato Protagonista con movimiento físico real
+            // Dibujar Gato Protagonista con movimiento libre
             let catColor = currentCat ? player.color : '#e67e22';
             let catName = currentCat ? player.name : 'Elige tu Gato';
 
             ctx.save();
             ctx.translate(player.x, player.y);
             
-            // Cuerpo del gato
             ctx.fillStyle = catColor;
             ctx.beginPath();
-            ctx.ellipse(0, 0, 22, 14, 0, 0, Math.PI * 2);
+            ctx.ellipse(0, 0, 20, 13, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Cabeza
             ctx.beginPath();
-            ctx.arc(14, -10, 11, 0, Math.PI * 2);
+            ctx.arc(12, -9, 10, 0, Math.PI * 2);
             ctx.fill();
 
-            // Orejas puntiagudas
             ctx.beginPath();
-            ctx.moveTo(8, -18); ctx.lineTo(12, -30); ctx.lineTo(17, -18);
+            ctx.moveTo(7, -16); ctx.lineTo(10, -26); ctx.lineTo(15, -16);
             ctx.fillStyle = catColor;
             ctx.fill();
 
-            // Ojos
             ctx.fillStyle = '#00ffcc';
-            ctx.fillRect(16, -13, 3, 3);
+            ctx.fillRect(14, -12, 3, 3);
 
-            // Nombre flotante sobre el gato
             ctx.fillStyle = '#fef3c7';
             ctx.font = '11px Courier New';
             ctx.textAlign = 'center';
-            ctx.fillText(catName, 0, -40);
+            ctx.fillText(catName, 0, -38);
 
             ctx.restore();
         }
